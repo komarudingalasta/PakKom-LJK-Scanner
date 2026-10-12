@@ -3,20 +3,19 @@ name: Build Android APK
 on:
   workflow_dispatch:
   push:
-    branches: [main]
-    paths-ignore:
-      - '**/*.md'
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
   apk:
-    name: Build debug APK
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    name: Build PakKom LJK debug APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
     steps:
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Install Java 17
@@ -25,26 +24,35 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Android SDK
-  uses: android-actions/setup-android@v3
-  with:
-    packages: ''
+      - name: Prepare Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "SDK directory: $SDK_ROOT"
+          test -d "$SDK_ROOT"
+          SDKMANAGER=$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort -V | tail -1)
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" --install "platforms;android-35" "build-tools;35.0.0" "platform-tools"
 
       - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
 
-      - name: Check OMR template geometry
+      - name: Validate OMR template coordinates
         run: python3 tools/check_layout.py
 
-      - name: Build APK
+      - name: Build debug APK
         run: gradle --no-daemon :app:assembleDebug --stacktrace
 
-      - name: Upload debug APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PakKom-LJK-Scanner-v1.0.1-debug
+          name: PakKom-LJK-Scanner-v1.0.2-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
