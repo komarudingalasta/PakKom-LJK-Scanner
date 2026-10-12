@@ -36,7 +36,7 @@ class OmrReader(private val layout: JSONObject) {
         val code=StringBuilder()
         for (d in 1..3) {
             val row=digits.getJSONObject(d.toString())
-            val scores=(0..9).map { i -> fillScore(normalized,coords(row.getJSONArray(i.toString())),1.65) }
+            val scores=(0..9).map { i -> fillScore(normalized,coords(row.getJSONArray(i.toString())),1.75) }
             val selected=select(scores)
             code.append(if(selected<0) '?' else ('0'+selected))
             if(selected<0)warnings.add("Kode peserta digit $d kosong, ganda, atau tidak jelas")
@@ -45,46 +45,75 @@ class OmrReader(private val layout: JSONObject) {
         val options=layout.getString("options")
         val answers=(1..layout.getInt("question_count")).map { n ->
             val row=answerJson.getJSONObject(n.toString())
-            val scores=options.map { fillScore(normalized,coords(row.getJSONArray(it.toString())),1.95) }
+            val scores=options.map { fillScore(normalized,coords(row.getJSONArray(it.toString())),2.10) }
             val choice=select(scores)
             if(choice==-2) { warnings.add("Soal $n: tanda ganda atau tidak jelas"); "?" }
             else if(choice==-1) "-" else options[choice].toString()
         }
         val overlay=normalized.copy(Bitmap.Config.ARGB_8888,true)
         val debug=android.graphics.Canvas(overlay)
-        val paint=android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply { style=android.graphics.Paint.Style.STROKE;strokeWidth=2.2f }
-        fun ring(xy: Pair<Double,Double>,selected:Boolean){ paint.color=if(selected) Color.rgb(0,145,65) else Color.rgb(245,145,0);debug.drawCircle((xy.first*scale).toFloat(),(xy.second*scale).toFloat(),(2.0*scale).toFloat(),paint) }
+        val paint=android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply { style=android.graphics.Paint.Style.STROKE;strokeWidth=1.6f }
+        fun ring(xy: Pair<Double,Double>,selected:Boolean){ paint.color=if(selected) Color.rgb(0,145,65) else Color.rgb(115,155,200);debug.drawCircle((xy.first*scale).toFloat(),(xy.second*scale).toFloat(),(2.0*scale).toFloat(),paint) }
         for(d in 1..3){ val row=digits.getJSONObject(d.toString());for(i in 0..9)ring(coords(row.getJSONArray(i.toString())),code[d-1]==('0'+i)) }
         for(n in 1..layout.getInt("question_count")){ val row=answerJson.getJSONObject(n.toString());for(c in options)ring(coords(row.getJSONArray(c.toString())),answers[n-1]==c.toString()) }
         return Result(code.toString(),answers,warnings,normalized,overlay)
     }
 
-    /** Compare the inside of a bubble against its immediate printed neighborhood.
-     * Relative contrast reduces false positives from uneven lighting. */
+    /**
+     * Sample the central ink area, excluding the printed outline. Estimate background
+     * from a surrounding annulus. Small registration offsets are handled by a local
+     * 3x3 center search; use the median of the strongest samples, not one pixel.
+     * Score is normalized dark-pixel coverage, not a global mean contrast threshold.
+     */
     private fun fillScore(image: Bitmap, xy: Pair<Double,Double>, radiusMm: Double): Double {
-        val x=(xy.first*scale).toInt();val y=(xy.second*scale).toInt()
-        val inner=max(3,(radiusMm*scale*.52).toInt())
-        val outer=max(inner+3,(radiusMm*scale*1.55).toInt())
-        var inside=0.0;var insideCount=0;var outside=0.0;var outsideCount=0
-        for(dy in -outer..outer)for(dx in -outer..outer){
-            val dist=dx*dx+dy*dy
-            val px=x+dx;val py=y+dy
-            if(px !in 0 until image.width || py !in 0 until image.height)continue
-            val g=gray(image.getPixel(px,py)).toDouble()
-            if(dist<=inner*inner){inside+=g;insideCount++}
-            else if(dist> (outer*.73)*(outer*.73) && dist<=outer*outer){outside+=g;outsideCount++}
+        val cx=(xy.first*scale).roundToInt()
+        val cy=(xy.second*scale).roundToInt()
+        val core=max(3,(radiusMm*scale*0.56).roundToInt())
+        val outer=max(core+3,(radiusMm*scale*1.85).roundToInt())
+        val ringStart=(radiusMm*scale*1.35).roundToInt()
+        var backgroundSum=0.0;var backgroundCount=0
+        for (dy in -outer..outer step 2) for (dx in -outer..outer step 2) {
+            val d2=dx*dx+dy*dy
+            if(d2<ringStart*ringStart || d2>outer*outer)continue
+            val x=cx+dx;val y=cy+dy
+            if(x in 0 until image.width && y in 0 until image.height){
+                backgroundSum+=gray(image.getPixel(x,y));backgroundCount++
+            }
         }
-        if(insideCount==0||outsideCount==0)return 0.0
-        val center=inside/insideCount;val background=outside/outsideCount
-        return ((background-center)/255.0).coerceIn(-1.0,1.0)
+        if(backgroundCount<8)return 0.0
+        val bg=backgroundSum/backgroundCount
+        val threshold=min(180.0,bg-38.0)
+        if(threshold<65)return 0.0
+        val scores=ArrayList<Double>(9)
+        for (oy in -2..2 step 2) for(ox in -2..2 step 2) {
+            var dark=0;var count=0;var contrast=0.0
+            for(dy in -core..core)for(dx in -core..core){
+                if(dx*dx+dy*dy>core*core)continue
+                val x=cx+ox+dx;val y=cy+oy+dy
+                if(x !in 0 until image.width || y !in 0 until image.height)continue
+                val g=gray(image.getPixel(x,y)).toDouble()
+                if(g<threshold)dark++
+                contrast+=(bg-g).coerceAtLeast(0.0)
+                count++
+            }
+            if(count>0){
+                val coverage=dark.toDouble()/count
+                val darkness=(contrast/count/180.0).coerceIn(0.0,1.0)
+                scores.add(coverage*0.72+darkness*0.28)
+            }
+        }
+        return scores.sortedDescending().take(3).average().takeIf{!it.isNaN()}?:0.0
     }
-    /** Conservative: uncertain results must be checked, not silently guessed. */
+
+    /** Never force a choice when the two strongest bubbles look equally filled. */
     private fun select(scores: List<Double>): Int {
+        if(scores.isEmpty())return -2
         val ranked=scores.indices.sortedByDescending { scores[it] }
-        val best=ranked.first();val top=scores[best]
-        if(top<.12)return -1
-        if(top<.22)return -2
-        if(ranked.size>1 && scores[ranked[1]]>.19 && top-scores[ranked[1]]<.16)return -2
+        val best=ranked[0];val top=scores[best]
+        val second=if(ranked.size>1)scores[ranked[1]] else 0.0
+        if(top<0.14)return -1
+        if(top<0.24)return -2
+        if(second>=0.24 && (top-second<0.15 || second>=top*0.72))return -2
         return best
     }
     private fun findMarks(image: Bitmap): List<Pair<Double,Double>>? {
