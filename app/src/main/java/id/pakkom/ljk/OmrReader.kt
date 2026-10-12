@@ -31,6 +31,10 @@ class OmrReader(private val layout: JSONObject) {
         if(!transform.setPolyToPoly(source,0,target,0,4)) throw IllegalArgumentException("Perspektif foto tidak dapat diperbaiki")
         val normalized=Bitmap.createBitmap((widthMm*scale).toInt(),(heightMm*scale).toInt(),Bitmap.Config.ARGB_8888)
         val canvas=android.graphics.Canvas(normalized);canvas.drawColor(Color.WHITE);canvas.drawBitmap(photo,transform,android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG))
+        // Fail closed: never decode bubbles from a warped sheet with invalid registration marks.
+        if (!validateNormalizedMarks(normalized)) {
+            throw IllegalArgumentException("Posisi empat penanda tidak valid setelah pelurusan. Pastikan seluruh kertas terlihat, tidak terpotong, dan pilih format yang benar.")
+        }
         val warnings=mutableListOf<String>()
         val digits=layout.getJSONObject("participant_code")
         val code=StringBuilder()
@@ -116,34 +120,55 @@ class OmrReader(private val layout: JSONObject) {
         if(second>=0.24 && (top-second<0.15 || second>=top*0.72))return -2
         return best
     }
+    /** Registration markers must remain solid and in the expected places after warping. */
+    private fun validateNormalizedMarks(image: Bitmap): Boolean {
+        val reg=layout.getJSONArray("registration_marks_mm")
+        val markRadius=(2.2*scale).roundToInt()
+        for(i in 0..3){
+            val (mx,my)=coords(reg.getJSONArray(i))
+            val cx=(mx*scale).roundToInt(); val cy=(my*scale).roundToInt()
+            var dark=0;var total=0
+            for(y in cy-markRadius..cy+markRadius step 2) for(x in cx-markRadius..cx+markRadius step 2){
+                if(x !in 0 until image.width || y !in 0 until image.height)return false
+                if(gray(image.getPixel(x,y))<125)dark++
+                total++
+            }
+            if(total==0 || dark.toDouble()/total<0.62)return false
+        }
+        return true
+    }
+
     /**
-     * Multi-threshold connected-component detection of the four printed square marks.
-     * Unlike the previous version, the candidate search is not restricted to the
-     * outermost quarter of the photograph: a sheet can have large surrounding margins.
-     * A square must be compact, sufficiently filled, and consistent with the other
-     * three squares. Results follow the layout's TL, BL, TR, BR order.
+     * Conservative four-corner detector. A random group of filled answer bubbles
+     * must never be accepted as page registration marks.
+     * The geometry is checked against the physical registration-mark aspect ratio,
+     * projected area, perspective, size consistency and corner positions.
+     * The returned order is TL, BL, TR, BR, as used by the layout JSON.
      */
     private fun findMarks(image: Bitmap): List<Pair<Double,Double>>? {
-        val w=image.width; val h=image.height
-        val step=max(1, max(w,h)/1100)
-        val cols=(w+step-1)/step; val rows=(h+step-1)/step
+        val w=image.width;val h=image.height
+        val step=max(1,max(w,h)/1100)
+        val cols=(w+step-1)/step;val rows=(h+step-1)/step
         data class Candidate(val x:Double,val y:Double,val size:Double,val fill:Double)
-        for(threshold in intArrayOf(75,105,135,165)) {
+        val reg=layout.getJSONArray("registration_marks_mm")
+        val (tlx,tly)=coords(reg.getJSONArray(0))
+        val (blx,bly)=coords(reg.getJSONArray(1))
+        val (trx,tryy)=coords(reg.getJSONArray(2))
+        val expectedRatio=(trx-tlx)/(bly-tly)
+        for(threshold in intArrayOf(75,105,135,165)){
             val mask=BooleanArray(cols*rows)
-            for(y in 0 until rows) for(x in 0 until cols) {
+            for(y in 0 until rows)for(x in 0 until cols)
                 mask[y*cols+x]=gray(image.getPixel(min(w-1,x*step),min(h-1,y*step)))<threshold
-            }
-            val seen=BooleanArray(mask.size)
-            val queue=IntArray(mask.size)
+            val seen=BooleanArray(mask.size);val queue=IntArray(mask.size)
             val candidates=ArrayList<Candidate>()
-            val minSide=max(3,min(cols,rows)/180)
-            val maxSide=max(15,min(cols,rows)/8)
-            for(i in mask.indices) {
+            val minSide=max(3,min(cols,rows)/200)
+            val maxSide=max(12,min(cols,rows)/12)
+            for(i in mask.indices){
                 if(!mask[i]||seen[i])continue
                 var head=0;var tail=1;queue[0]=i;seen[i]=true
                 var minX=cols;var maxX=0;var minY=rows;var maxY=0
                 var sumX=0L;var sumY=0L
-                while(head<tail) {
+                while(head<tail){
                     val v=queue[head++];val x=v%cols;val y=v/cols
                     sumX+=x;sumY+=y
                     minX=min(minX,x);maxX=max(maxX,x);minY=min(minY,y);maxY=max(maxY,y)
@@ -153,42 +178,51 @@ class OmrReader(private val layout: JSONObject) {
                     if(y+1<rows){val j=v+cols;if(mask[j]&&!seen[j]){seen[j]=true;queue[tail++]=j}}
                 }
                 val bw=maxX-minX+1;val bh=maxY-minY+1
-                val ratio=bw.toDouble()/bh
-                val fill=tail.toDouble()/(bw*bh)
-                if(bw in minSide..maxSide && bh in minSide..maxSide && ratio in 0.68..1.46 && fill>0.66) {
+                val ratio=bw.toDouble()/bh;val fill=tail.toDouble()/(bw*bh)
+                if(bw in minSide..maxSide && bh in minSide..maxSide && ratio in .77..1.30 && fill>.78)
                     candidates.add(Candidate(sumX.toDouble()/tail*step,sumY.toDouble()/tail*step,(bw+bh)*step/2.0,fill))
-                }
             }
             if(candidates.size<4)continue
-            // Search candidates in broad quadrants, then validate the rectangle.
             val quadrants=listOf(
-                candidates.filter{it.x<w*.52 && it.y<h*.52},
-                candidates.filter{it.x<w*.52 && it.y>h*.48},
-                candidates.filter{it.x>w*.48 && it.y<h*.52},
-                candidates.filter{it.x>w*.48 && it.y>h*.48}
+                candidates.filter{it.x<w*.48 && it.y<h*.48},
+                candidates.filter{it.x<w*.48 && it.y>h*.52},
+                candidates.filter{it.x>w*.52 && it.y<h*.48},
+                candidates.filter{it.x>w*.52 && it.y>h*.52}
             )
             if(quadrants.any{it.isEmpty()})continue
             val ranked=quadrants.mapIndexed{index,list->
-                list.sortedBy { c ->
-                    val tx=if(index==0||index==1) 0.0 else w.toDouble()
-                    val ty=if(index==0||index==2) 0.0 else h.toDouble()
-                    hypot(c.x-tx,c.y-ty) / hypot(w.toDouble(),h.toDouble()) + (1.0-c.fill)*0.12
-                }.take(10)
+                list.sortedBy{c->
+                    val tx=if(index<2)0.0 else w.toDouble()
+                    val ty=if(index==0||index==2)0.0 else h.toDouble()
+                    hypot(c.x-tx,c.y-ty)/hypot(w.toDouble(),h.toDouble())+(1.0-c.fill)*.2
+                }.take(8)
             }
             var best:List<Candidate>?=null;var bestError=Double.POSITIVE_INFINITY
-            for(a in ranked[0])for(b in ranked[1])for(c in ranked[2])for(d in ranked[3]) {
-                val widthTop=c.x-a.x;val widthBottom=d.x-b.x
-                val heightLeft=b.y-a.y;val heightRight=d.y-c.y
-                if(widthTop<w*.32||widthBottom<w*.32||heightLeft<h*.32||heightRight<h*.32)continue
-                val sizes=listOf(a.size,b.size,c.size,d.size)
-                if(sizes.maxOrNull()!! / sizes.minOrNull()!! > 2.5)continue
-                val horizontal=abs(widthTop-widthBottom)/max(widthTop,widthBottom)
-                val vertical=abs(heightLeft-heightRight)/max(heightLeft,heightRight)
-                val slant=(abs(a.y-c.y)+abs(b.y-d.y))/h+(abs(a.x-b.x)+abs(c.x-d.x))/w
-                val error=horizontal+vertical+slant*.35+(sizes.maxOrNull()!!-sizes.minOrNull()!!)/sizes.maxOrNull()!!*.2
+            for(a in ranked[0])for(b in ranked[1])for(c in ranked[2])for(d in ranked[3]){
+                val top=hypot(c.x-a.x,c.y-a.y)
+                val bottom=hypot(d.x-b.x,d.y-b.y)
+                val left=hypot(b.x-a.x,b.y-a.y)
+                val right=hypot(d.x-c.x,d.y-c.y)
+                if(min(top,bottom)<w*.43 || min(left,right)<h*.43)continue
+                val aspect=(top+bottom)/(left+right)
+                if(abs(ln(aspect/expectedRatio))>.23)continue
+                val size=listOf(a.size,b.size,c.size,d.size)
+                if(size.maxOrNull()!!/size.minOrNull()!!>1.65)continue
+                val horizontal=abs(top-bottom)/max(top,bottom)
+                val vertical=abs(left-right)/max(left,right)
+                if(horizontal>.22||vertical>.22)continue
+                // Diagonals and signed area reject bow-tie / highly skewed configurations.
+                val diagonal1=hypot(d.x-a.x,d.y-a.y)
+                val diagonal2=hypot(c.x-b.x,c.y-b.y)
+                if(abs(diagonal1-diagonal2)/max(diagonal1,diagonal2)>.22)continue
+                val area=abs((c.x-a.x)*(b.y-a.y)-(c.y-a.y)*(b.x-a.x))
+                if(area<w*h*.26)continue
+                        val error=abs(ln(aspect/expectedRatio))*2+horizontal+vertical+
+                    abs(diagonal1-diagonal2)/max(diagonal1,diagonal2)+
+                    (size.maxOrNull()!!-size.minOrNull()!!)/size.maxOrNull()!!*.4
                 if(error<bestError){bestError=error;best=listOf(a,b,c,d)}
             }
-            if(best!=null && bestError<1.0)return best!!.map{it.x to it.y}
+            if(best!=null && bestError<.48)return best!!.map{it.x to it.y}
         }
         return null
     }
