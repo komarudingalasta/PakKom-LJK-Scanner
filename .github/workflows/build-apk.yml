@@ -44,7 +44,7 @@ jobs:
           gradle-version: '8.7'
 
       - name: Validate OMR template coordinates
-        run: python3 tools/check_layout.py
+        run: python3 tools/check_layout.py && python3 tools/check_scan_layouts.py
 
       - name: Build debug APK
         run: gradle --no-daemon :app:assembleDebug --stacktrace
@@ -52,7 +52,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PakKom-LJK-Scanner-v1.1-Universal-debug
+          name: PakKom-LJK-Scanner-v1.2-OMR-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
