@@ -52,7 +52,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PakKom-LJK-Scanner-v1.3-Scanner-Core-debug
+          name: PakKom-LJK-Scanner-v1.3.1-OMR-Fix-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
