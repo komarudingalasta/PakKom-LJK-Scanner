@@ -1,0 +1,1735 @@
+{
+  "paper": "A4",
+  "width_mm": 210.0,
+  "height_mm": 297.0,
+  "template_id": "PK-LJK-50-AE-U1-A4",
+  "marks_mm": [
+    {
+      "x_mm": 8,
+      "y_mm": 8,
+      "size_mm": 6
+    },
+    {
+      "x_mm": 196.0,
+      "y_mm": 8,
+      "size_mm": 6
+    },
+    {
+      "x_mm": 8,
+      "y_mm": 283.0,
+      "size_mm": 6
+    },
+    {
+      "x_mm": 196.0,
+      "y_mm": 283.0,
+      "size_mm": 6
+    }
+  ],
+  "participant_code_bubbles": [
+    {
+      "column": 1,
+      "digit": 0,
+      "x_mm": 27,
+      "y_mm": 62.0
+    },
+    {
+      "column": 1,
+      "digit": 1,
+      "x_mm": 27,
+      "y_mm": 66.7
+    },
+    {
+      "column": 1,
+      "digit": 2,
+      "x_mm": 27,
+      "y_mm": 71.4
+    },
+    {
+      "column": 1,
+      "digit": 3,
+      "x_mm": 27,
+      "y_mm": 76.1
+    },
+    {
+      "column": 1,
+      "digit": 4,
+      "x_mm": 27,
+      "y_mm": 80.8
+    },
+    {
+      "column": 1,
+      "digit": 5,
+      "x_mm": 27,
+      "y_mm": 85.5
+    },
+    {
+      "column": 1,
+      "digit": 6,
+      "x_mm": 27,
+      "y_mm": 90.2
+    },
+    {
+      "column": 1,
+      "digit": 7,
+      "x_mm": 27,
+      "y_mm": 94.9
+    },
+    {
+      "column": 1,
+      "digit": 8,
+      "x_mm": 27,
+      "y_mm": 99.6
+    },
+    {
+      "column": 1,
+      "digit": 9,
+      "x_mm": 27,
+      "y_mm": 104.3
+    },
+    {
+      "column": 2,
+      "digit": 0,
+      "x_mm": 49,
+      "y_mm": 62.0
+    },
+    {
+      "column": 2,
+      "digit": 1,
+      "x_mm": 49,
+      "y_mm": 66.7
+    },
+    {
+      "column": 2,
+      "digit": 2,
+      "x_mm": 49,
+      "y_mm": 71.4
+    },
+    {
+      "column": 2,
+      "digit": 3,
+      "x_mm": 49,
+      "y_mm": 76.1
+    },
+    {
+      "column": 2,
+      "digit": 4,
+      "x_mm": 49,
+      "y_mm": 80.8
+    },
+    {
+      "column": 2,
+      "digit": 5,
+      "x_mm": 49,
+      "y_mm": 85.5
+    },
+    {
+      "column": 2,
+      "digit": 6,
+      "x_mm": 49,
+      "y_mm": 90.2
+    },
+    {
+      "column": 2,
+      "digit": 7,
+      "x_mm": 49,
+      "y_mm": 94.9
+    },
+    {
+      "column": 2,
+      "digit": 8,
+      "x_mm": 49,
+      "y_mm": 99.6
+    },
+    {
+      "column": 2,
+      "digit": 9,
+      "x_mm": 49,
+      "y_mm": 104.3
+    },
+    {
+      "column": 3,
+      "digit": 0,
+      "x_mm": 71,
+      "y_mm": 62.0
+    },
+    {
+      "column": 3,
+      "digit": 1,
+      "x_mm": 71,
+      "y_mm": 66.7
+    },
+    {
+      "column": 3,
+      "digit": 2,
+      "x_mm": 71,
+      "y_mm": 71.4
+    },
+    {
+      "column": 3,
+      "digit": 3,
+      "x_mm": 71,
+      "y_mm": 76.1
+    },
+    {
+      "column": 3,
+      "digit": 4,
+      "x_mm": 71,
+      "y_mm": 80.8
+    },
+    {
+      "column": 3,
+      "digit": 5,
+      "x_mm": 71,
+      "y_mm": 85.5
+    },
+    {
+      "column": 3,
+      "digit": 6,
+      "x_mm": 71,
+      "y_mm": 90.2
+    },
+    {
+      "column": 3,
+      "digit": 7,
+      "x_mm": 71,
+      "y_mm": 94.9
+    },
+    {
+      "column": 3,
+      "digit": 8,
+      "x_mm": 71,
+      "y_mm": 99.6
+    },
+    {
+      "column": 3,
+      "digit": 9,
+      "x_mm": 71,
+      "y_mm": 104.3
+    }
+  ],
+  "package_bubbles": [
+    {
+      "option": "A",
+      "x_mm": 43,
+      "y_mm": 43.7
+    },
+    {
+      "option": "B",
+      "x_mm": 58,
+      "y_mm": 43.7
+    },
+    {
+      "option": "C",
+      "x_mm": 73,
+      "y_mm": 43.7
+    },
+    {
+      "option": "D",
+      "x_mm": 88,
+      "y_mm": 43.7
+    }
+  ],
+  "answer_bubbles": [
+    {
+      "question": 1,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 119.0
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 119.0
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 119.0
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 119.0
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 119.0
+        }
+      ]
+    },
+    {
+      "question": 2,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 125.16
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 125.16
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 125.16
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 125.16
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 125.16
+        }
+      ]
+    },
+    {
+      "question": 3,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 131.32
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 131.32
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 131.32
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 131.32
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 131.32
+        }
+      ]
+    },
+    {
+      "question": 4,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 137.48
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 137.48
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 137.48
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 137.48
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 137.48
+        }
+      ]
+    },
+    {
+      "question": 5,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 143.64
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 143.64
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 143.64
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 143.64
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 143.64
+        }
+      ]
+    },
+    {
+      "question": 6,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 149.8
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 149.8
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 149.8
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 149.8
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 149.8
+        }
+      ]
+    },
+    {
+      "question": 7,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 155.96
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 155.96
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 155.96
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 155.96
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 155.96
+        }
+      ]
+    },
+    {
+      "question": 8,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 162.12
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 162.12
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 162.12
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 162.12
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 162.12
+        }
+      ]
+    },
+    {
+      "question": 9,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 168.28
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 168.28
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 168.28
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 168.28
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 168.28
+        }
+      ]
+    },
+    {
+      "question": 10,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 174.44
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 174.44
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 174.44
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 174.44
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 174.44
+        }
+      ]
+    },
+    {
+      "question": 11,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 180.6
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 180.6
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 180.6
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 180.6
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 180.6
+        }
+      ]
+    },
+    {
+      "question": 12,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 186.76
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 186.76
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 186.76
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 186.76
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 186.76
+        }
+      ]
+    },
+    {
+      "question": 13,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 192.92
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 192.92
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 192.92
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 192.92
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 192.92
+        }
+      ]
+    },
+    {
+      "question": 14,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 199.08
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 199.08
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 199.08
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 199.08
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 199.08
+        }
+      ]
+    },
+    {
+      "question": 15,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 205.24
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 205.24
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 205.24
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 205.24
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 205.24
+        }
+      ]
+    },
+    {
+      "question": 16,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 211.4
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 211.4
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 211.4
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 211.4
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 211.4
+        }
+      ]
+    },
+    {
+      "question": 17,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 217.56
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 217.56
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 217.56
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 217.56
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 217.56
+        }
+      ]
+    },
+    {
+      "question": 18,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 223.72
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 223.72
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 223.72
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 223.72
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 223.72
+        }
+      ]
+    },
+    {
+      "question": 19,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 229.88
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 229.88
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 229.88
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 229.88
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 229.88
+        }
+      ]
+    },
+    {
+      "question": 20,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 236.04
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 236.04
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 236.04
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 236.04
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 236.04
+        }
+      ]
+    },
+    {
+      "question": 21,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 242.2
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 242.2
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 242.2
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 242.2
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 242.2
+        }
+      ]
+    },
+    {
+      "question": 22,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 248.36
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 248.36
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 248.36
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 248.36
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 248.36
+        }
+      ]
+    },
+    {
+      "question": 23,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 254.52
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 254.52
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 254.52
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 254.52
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 254.52
+        }
+      ]
+    },
+    {
+      "question": 24,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 260.68
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 260.68
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 260.68
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 260.68
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 260.68
+        }
+      ]
+    },
+    {
+      "question": 25,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 34.0,
+          "y_mm": 266.84
+        },
+        {
+          "choice": "B",
+          "x_mm": 49.875,
+          "y_mm": 266.84
+        },
+        {
+          "choice": "C",
+          "x_mm": 65.75,
+          "y_mm": 266.84
+        },
+        {
+          "choice": "D",
+          "x_mm": 81.625,
+          "y_mm": 266.84
+        },
+        {
+          "choice": "E",
+          "x_mm": 97.5,
+          "y_mm": 266.84
+        }
+      ]
+    },
+    {
+      "question": 26,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 119.0
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 119.0
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 119.0
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 119.0
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 119.0
+        }
+      ]
+    },
+    {
+      "question": 27,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 125.16
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 125.16
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 125.16
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 125.16
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 125.16
+        }
+      ]
+    },
+    {
+      "question": 28,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 131.32
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 131.32
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 131.32
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 131.32
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 131.32
+        }
+      ]
+    },
+    {
+      "question": 29,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 137.48
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 137.48
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 137.48
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 137.48
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 137.48
+        }
+      ]
+    },
+    {
+      "question": 30,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 143.64
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 143.64
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 143.64
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 143.64
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 143.64
+        }
+      ]
+    },
+    {
+      "question": 31,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 149.8
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 149.8
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 149.8
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 149.8
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 149.8
+        }
+      ]
+    },
+    {
+      "question": 32,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 155.96
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 155.96
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 155.96
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 155.96
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 155.96
+        }
+      ]
+    },
+    {
+      "question": 33,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 162.12
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 162.12
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 162.12
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 162.12
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 162.12
+        }
+      ]
+    },
+    {
+      "question": 34,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 168.28
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 168.28
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 168.28
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 168.28
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 168.28
+        }
+      ]
+    },
+    {
+      "question": 35,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 174.44
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 174.44
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 174.44
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 174.44
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 174.44
+        }
+      ]
+    },
+    {
+      "question": 36,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 180.6
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 180.6
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 180.6
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 180.6
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 180.6
+        }
+      ]
+    },
+    {
+      "question": 37,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 186.76
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 186.76
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 186.76
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 186.76
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 186.76
+        }
+      ]
+    },
+    {
+      "question": 38,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 192.92
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 192.92
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 192.92
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 192.92
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 192.92
+        }
+      ]
+    },
+    {
+      "question": 39,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 199.08
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 199.08
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 199.08
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 199.08
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 199.08
+        }
+      ]
+    },
+    {
+      "question": 40,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 205.24
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 205.24
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 205.24
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 205.24
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 205.24
+        }
+      ]
+    },
+    {
+      "question": 41,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 211.4
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 211.4
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 211.4
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 211.4
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 211.4
+        }
+      ]
+    },
+    {
+      "question": 42,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 217.56
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 217.56
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 217.56
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 217.56
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 217.56
+        }
+      ]
+    },
+    {
+      "question": 43,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 223.72
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 223.72
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 223.72
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 223.72
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 223.72
+        }
+      ]
+    },
+    {
+      "question": 44,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 229.88
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 229.88
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 229.88
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 229.88
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 229.88
+        }
+      ]
+    },
+    {
+      "question": 45,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 236.04
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 236.04
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 236.04
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 236.04
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 236.04
+        }
+      ]
+    },
+    {
+      "question": 46,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 242.2
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 242.2
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 242.2
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 242.2
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 242.2
+        }
+      ]
+    },
+    {
+      "question": 47,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 248.36
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 248.36
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 248.36
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 248.36
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 248.36
+        }
+      ]
+    },
+    {
+      "question": 48,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 254.52
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 254.52
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 254.52
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 254.52
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 254.52
+        }
+      ]
+    },
+    {
+      "question": 49,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 260.68
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 260.68
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 260.68
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 260.68
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 260.68
+        }
+      ]
+    },
+    {
+      "question": 50,
+      "bubbles": [
+        {
+          "choice": "A",
+          "x_mm": 124.5,
+          "y_mm": 266.84
+        },
+        {
+          "choice": "B",
+          "x_mm": 140.375,
+          "y_mm": 266.84
+        },
+        {
+          "choice": "C",
+          "x_mm": 156.25,
+          "y_mm": 266.84
+        },
+        {
+          "choice": "D",
+          "x_mm": 172.125,
+          "y_mm": 266.84
+        },
+        {
+          "choice": "E",
+          "x_mm": 188.0,
+          "y_mm": 266.84
+        }
+      ]
+    }
+  ],
+  "note": "Coordinates in mm measured from upper-left of page. OCR/OMR detection not yet validated."
+}
