@@ -1,16 +1,16 @@
-# PakKom LJK Scanner v1.3.1 — OMR Fix
+# PakKom LJK Scanner v1.3.3 — Hotfix Deteksi Sudut
 
-Hotfix untuk hasil scan v1.3 yang sering membaca bulatan hitam sebagai kosong dan kode peserta sebagai ???. Tidak ada database, analisis, atau penyimpanan.
+Fokus: memperbaiki kegagalan mendeteksi empat kotak hitam saat memindai foto dari galeri.
 
 ## Perubahan
-- Skor bulatan berdasarkan proporsi piksel gelap pada **bagian tengah** (mengabaikan tepi bulatan tercetak) serta kontras terhadap area luar.
-- Pencarian kecil ±2 piksel mengurangi dampak pergeseran registrasi.
-- Pemilihan jawaban berdasarkan skor terbaik dan perbedaan terhadap skor kedua; jawaban ambigu diberi tanda `?`, bukan ditebak.
-- Lingkaran overlay hijau = pilihan terbaca; biru = lainnya.
-- Kamera eksternal/galeri tetap mengikuti v1.3.
+- Deteksi komponen hitam pada seluruh foto, bukan hanya 25% bagian sudut foto.
+- Beberapa ambang hitam (75, 105, 135, 165).
+- Seleksi bentuk kotak, kepadatan isi, ukuran, dan konsistensi geometri empat sudut.
+- Mengikuti urutan koordinat PDF: kiri atas, kiri bawah, kanan atas, kanan bawah.
+- Algoritma pembacaan bulatan v1.3.1 dan branding v1.3.2 tetap dipertahankan.
 
-## Batasan penting
-Ini adalah perbaikan algoritma, **belum terbukti akurat pada foto asli**. Deteksi penanda dan koordinat masih mengikuti v1.3. Uji dengan PDF asli yang dicetak 100% (bukan screenshot/hasil crop) dan arsiran hitam yang merata. Jika salah, kirim **foto asli** dan overlay untuk diagnosis kalibrasi; jangan gunakan hasil untuk nilai resmi.
+## Cara pasang
+Ekstrak ZIP lalu upload seluruh isi folder ke root repository GitHub. Commit dan jalankan Build Android APK pada Actions.
 
-## Upload GitHub
-Ekstrak ZIP dan upload semua **isi folder** ke root repository, termasuk `.github`, commit satu kali. GitHub Actions > Build Android APK > Artifacts.
+## Batasan
+Perubahan ini belum diuji dengan foto asli pada Android dan belum diverifikasi build APK-nya. Jika foto masih gagal, perlu contoh foto asli dan log diagnostik. Jangan gunakan hasil OMR untuk penilaian resmi sebelum uji akurasi.
