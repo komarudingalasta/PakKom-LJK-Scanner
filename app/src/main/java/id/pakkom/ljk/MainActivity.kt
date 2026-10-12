@@ -28,7 +28,7 @@ class MainActivity : Activity() {
         setContentView(ScrollView(this).apply { addView(root) })
         fun label(t:String,size:Float=15f)=TextView(this).apply {text=t;textSize=size;setTextColor(Color.rgb(22,55,63));setPadding(0,8.dp,0,8.dp);root.addView(this)}
         label("PakKom LJK Scanner",24f)
-        label("v1.3 · Scanner Core offline · uji akurasi",14f)
+        label("v1.3.1 · Perbaikan pembacaan OMR · uji akurasi",14f)
         label("Pilih format lembar")
         mode=Spinner(this).apply { adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,listOf("A5 · 20 soal · A–D","A5 · 30 soal · A–E","A4 · 50 soal · A–E"));root.addView(this) }
         label("Foto seluruh kertas dengan keempat kotak hitam sudut terlihat. Gunakan cahaya terang dan rata.",13f)
@@ -36,7 +36,7 @@ class MainActivity : Activity() {
         root.addView(Button(this).apply {text="PILIH FOTO DARI GALERI";setOnClickListener {startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {addCategory(Intent.CATEGORY_OPENABLE);type="image/*"},galleryRequest)} })
         preview=ImageView(this).apply { adjustViewBounds=true;scaleType=ImageView.ScaleType.FIT_CENTER;root.addView(this) }
         status=TextView(this).apply {text="Hasil pemindaian akan tampil di sini. Hasil yang meragukan harus diverifikasi guru.";textSize=15f;setTextColor(Color.DKGRAY);setPadding(0,18.dp,0,18.dp);root.addView(this)}
-        label("Lingkaran hijau = terpilih; oranye = tidak terpilih. Cocokkan overlay dengan lembar asli. Tidak ada penyimpanan atau penilaian.",13f)
+        label("Lingkaran hijau = terpilih; biru = tidak terpilih. Cocokkan overlay dengan lembar asli. Tidak ada penyimpanan atau penilaian.",13f)
     }
     private fun openCamera(){
         try {
