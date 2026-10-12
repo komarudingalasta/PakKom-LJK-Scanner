@@ -1,18 +1,19 @@
-"""Basic consistency checks for the fixed 50-question OMR layout."""
 import json
 from pathlib import Path
-
-p = Path(__file__).resolve().parents[1] / 'app/src/main/assets/omr_coordinates_v1.json'
-data = json.loads(p.read_text(encoding='utf-8'))
-assert data['templateId'] == 'PK-LJK-50-AE-V1'
-assert data['page'] == {'width': 210, 'height': 297}
-assert len(data['markers']) == 4
-assert len(data['questions']) == 50
-for i, q in enumerate(data['questions'], 1):
-    assert q['number'] == i
-    assert set(q['choices']) == set('ABCDE')
-    for xy in q['choices'].values():
-        assert 15 < xy['x'] < 195 and 15 < xy['y'] < 275
-for a in data['markers']:
-    assert 5 <= a['x'] <= 205 and 5 <= a['y'] <= 292
-print('OMR template checks passed: 50 questions, A-E, 4 markers, A4.')
+for paper in ('A4','A5'):
+    path=Path('app/src/main/assets')/f'coordinates-{paper}.json'
+    d=json.loads(path.read_text())
+    assert d['paper']==paper
+    assert len(d['marks_mm'])==4
+    assert len(d['participant_code_bubbles'])==30
+    assert len(d['package_bubbles'])==4
+    assert len(d['answer_bubbles'])==50
+    assert [q['question'] for q in d['answer_bubbles']]==list(range(1,51))
+    assert all(len(q['bubbles'])==5 for q in d['answer_bubbles'])
+    for collection in [d['marks_mm'],d['participant_code_bubbles'],d['package_bubbles']]:
+        for point in collection:
+            assert 0<point['x_mm']<d['width_mm'] and 0<point['y_mm']<d['height_mm']
+    for q in d['answer_bubbles']:
+        for b in q['bubbles']:
+            assert 0<b['x_mm']<d['width_mm'] and 0<b['y_mm']<d['height_mm']
+    print(f'{paper}: validated 50 questions, 3-digit ID, package and markers')
