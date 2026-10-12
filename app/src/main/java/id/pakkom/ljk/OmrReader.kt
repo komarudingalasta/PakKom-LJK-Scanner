@@ -116,38 +116,80 @@ class OmrReader(private val layout: JSONObject) {
         if(second>=0.24 && (top-second<0.15 || second>=top*0.72))return -2
         return best
     }
+    /**
+     * Multi-threshold connected-component detection of the four printed square marks.
+     * Unlike the previous version, the candidate search is not restricted to the
+     * outermost quarter of the photograph: a sheet can have large surrounding margins.
+     * A square must be compact, sufficiently filled, and consistent with the other
+     * three squares. Results follow the layout's TL, BL, TR, BR order.
+     */
     private fun findMarks(image: Bitmap): List<Pair<Double,Double>>? {
-        // Search only outer corners to avoid mistaking dark header or filled bubbles for markers.
-        val w=image.width;val h=image.height
-        val zones=listOf(intArrayOf(0,0,w/4,h/4),intArrayOf(0,h*3/4,w/4,h),intArrayOf(w*3/4,0,w,h/4),intArrayOf(w*3/4,h*3/4,w,h))
-        val result=mutableListOf<Pair<Double,Double>>()
-        for(z in zones){
-            val step=max(1,min(w,h)/750)
-            val cols=(z[2]-z[0])/step;val rows=(z[3]-z[1])/step
-            if(cols<2||rows<2)return null
+        val w=image.width; val h=image.height
+        val step=max(1, max(w,h)/1100)
+        val cols=(w+step-1)/step; val rows=(h+step-1)/step
+        data class Candidate(val x:Double,val y:Double,val size:Double,val fill:Double)
+        for(threshold in intArrayOf(75,105,135,165)) {
             val mask=BooleanArray(cols*rows)
-            for(y in 0 until rows)for(x in 0 until cols) mask[y*cols+x]=gray(image.getPixel(z[0]+x*step,z[1]+y*step))<80
-            val visited=BooleanArray(mask.size)
-            var bestArea=0;var bestX=0.0;var bestY=0.0
-            val q=IntArray(mask.size)
-            for(i in mask.indices){
-                if(!mask[i]||visited[i])continue
-                var head=0;var tail=1;q[0]=i;visited[i]=true
-                var sumX=0L;var sumY=0L;var minX=cols;var maxX=0;var minY=rows;var maxY=0
-                while(head<tail){
-                    val v=q[head++];val x=v%cols;val y=v/cols
-                    sumX+=x;sumY+=y;minX=min(minX,x);maxX=max(maxX,x);minY=min(minY,y);maxY=max(maxY,y)
-                    val neighbours=intArrayOf(if(x>0)v-1 else -1,if(x<cols-1)v+1 else -1,if(y>0)v-cols else -1,if(y<rows-1)v+cols else -1)
-                    for(k in neighbours)if(k>=0&&mask[k]&&!visited[k]){visited[k]=true;q[tail++]=k}
+            for(y in 0 until rows) for(x in 0 until cols) {
+                mask[y*cols+x]=gray(image.getPixel(min(w-1,x*step),min(h-1,y*step)))<threshold
+            }
+            val seen=BooleanArray(mask.size)
+            val queue=IntArray(mask.size)
+            val candidates=ArrayList<Candidate>()
+            val minSide=max(3,min(cols,rows)/180)
+            val maxSide=max(15,min(cols,rows)/8)
+            for(i in mask.indices) {
+                if(!mask[i]||seen[i])continue
+                var head=0;var tail=1;queue[0]=i;seen[i]=true
+                var minX=cols;var maxX=0;var minY=rows;var maxY=0
+                var sumX=0L;var sumY=0L
+                while(head<tail) {
+                    val v=queue[head++];val x=v%cols;val y=v/cols
+                    sumX+=x;sumY+=y
+                    minX=min(minX,x);maxX=max(maxX,x);minY=min(minY,y);maxY=max(maxY,y)
+                    if(x>0){val j=v-1;if(mask[j]&&!seen[j]){seen[j]=true;queue[tail++]=j}}
+                    if(x+1<cols){val j=v+1;if(mask[j]&&!seen[j]){seen[j]=true;queue[tail++]=j}}
+                    if(y>0){val j=v-cols;if(mask[j]&&!seen[j]){seen[j]=true;queue[tail++]=j}}
+                    if(y+1<rows){val j=v+cols;if(mask[j]&&!seen[j]){seen[j]=true;queue[tail++]=j}}
                 }
-                val dx=maxX-minX+1;val dy=maxY-minY+1
-                if(tail>bestArea && tail>10 && dx>=3 && dy>=3 && dx.toDouble()/dy in .65..1.5 && tail.toDouble()/(dx*dy)>.55){
-                    bestArea=tail;bestX=z[0]+sumX.toDouble()/tail*step;bestY=z[1]+sumY.toDouble()/tail*step
+                val bw=maxX-minX+1;val bh=maxY-minY+1
+                val ratio=bw.toDouble()/bh
+                val fill=tail.toDouble()/(bw*bh)
+                if(bw in minSide..maxSide && bh in minSide..maxSide && ratio in 0.68..1.46 && fill>0.66) {
+                    candidates.add(Candidate(sumX.toDouble()/tail*step,sumY.toDouble()/tail*step,(bw+bh)*step/2.0,fill))
                 }
             }
-            if(bestArea==0)return null
-            result.add(bestX to bestY)
+            if(candidates.size<4)continue
+            // Search candidates in broad quadrants, then validate the rectangle.
+            val quadrants=listOf(
+                candidates.filter{it.x<w*.52 && it.y<h*.52},
+                candidates.filter{it.x<w*.52 && it.y>h*.48},
+                candidates.filter{it.x>w*.48 && it.y<h*.52},
+                candidates.filter{it.x>w*.48 && it.y>h*.48}
+            )
+            if(quadrants.any{it.isEmpty()})continue
+            val ranked=quadrants.mapIndexed{index,list->
+                list.sortedBy { c ->
+                    val tx=if(index==0||index==1) 0.0 else w.toDouble()
+                    val ty=if(index==0||index==2) 0.0 else h.toDouble()
+                    hypot(c.x-tx,c.y-ty) / hypot(w.toDouble(),h.toDouble()) + (1.0-c.fill)*0.12
+                }.take(10)
+            }
+            var best:List<Candidate>?=null;var bestError=Double.POSITIVE_INFINITY
+            for(a in ranked[0])for(b in ranked[1])for(c in ranked[2])for(d in ranked[3]) {
+                val widthTop=c.x-a.x;val widthBottom=d.x-b.x
+                val heightLeft=b.y-a.y;val heightRight=d.y-c.y
+                if(widthTop<w*.32||widthBottom<w*.32||heightLeft<h*.32||heightRight<h*.32)continue
+                val sizes=listOf(a.size,b.size,c.size,d.size)
+                if(sizes.maxOrNull()!! / sizes.minOrNull()!! > 2.5)continue
+                val horizontal=abs(widthTop-widthBottom)/max(widthTop,widthBottom)
+                val vertical=abs(heightLeft-heightRight)/max(heightLeft,heightRight)
+                val slant=(abs(a.y-c.y)+abs(b.y-d.y))/h+(abs(a.x-b.x)+abs(c.x-d.x))/w
+                val error=horizontal+vertical+slant*.35+(sizes.maxOrNull()!!-sizes.minOrNull()!!)/sizes.maxOrNull()!!*.2
+                if(error<bestError){bestError=error;best=listOf(a,b,c,d)}
+            }
+            if(best!=null && bestError<1.0)return best!!.map{it.x to it.y}
         }
-        return result
+        return null
     }
 }
