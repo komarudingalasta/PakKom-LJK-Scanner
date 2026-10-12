@@ -1,19 +1,20 @@
-# PakKom LJK Scanner v1.2 — Prototype OMR Android
+# PakKom LJK Scanner v1.3 — Scanner Core
 
-Source Android GitHub-ready. Camera capture (full resolution via FileProvider), gallery import, detect four black registration marks, rectify perspective using Android Matrix, sample 3-digit participant code and answer bubbles, show blanks and ambiguous marks. Processing is offline on-device.
+Fokus: kamera, galeri, pembacaan kode 3 digit dan bulatan, serta overlay inspeksi. **Belum** ada penilaian atau penyimpanan.
 
-## Supported scanner formats
-- A5 20 questions A–D (custom approved preview)
-- A5 30 questions A–E
-- A4 50 questions A–E
+## Perbaikan
+- Hapus izin CAMERA dari manifest karena aplikasi menggunakan intent kamera eksternal; menghindari Permission Denial yang dilaporkan pada Samsung.
+- Tambahkan izin URI sementara untuk aplikasi kamera.
+- Baca orientasi EXIF foto galeri/kamera.
+- Gunakan skor kontras relatif pusat bulatan vs lingkungan (masih perlu kalibrasi pada hasil cetak nyata).
+- Tampilkan foto hasil koreksi perspektif dengan lingkaran hijau untuk pilihan terdeteksi dan oranye untuk pilihan lain.
+- Tandai hasil yang ambigu, jangan gunakan sebagai nilai resmi.
 
-**Important:** This is an experimental scanner, not production-ready. Marker detection and fill thresholds have NOT been calibrated against real printed photographs. Perspective normalization and orientation can fail; manually verify every result. It does not score or persist scans. The older v1.1 PDF generator has not been modified or connected to these three new scan layouts; the existing source was preserved separately as `LjkPdf.kt` but the UI focuses on scanning. Dynamic PDF generator remains future work.
+## Cara unggah
+Ekstrak ZIP, upload **isi folder** ke root repository GitHub (termasuk `.github`), commit satu kali, buka Actions > Build Android APK > Artifacts.
 
-## Upload to GitHub
-Extract ZIP and upload all contents to the repository root, including hidden `.github`. Replace older files; remove obsolete workflows to avoid Pages builds. Go to Actions > Build Android APK, download debug artifact. Build is NOT verified here: no local Android SDK/Gradle environment. Do not rely on this APK for official grading until camera/photo tests pass.
+## Uji wajib
+Cetak PDF asli pada skala 100%, isi kode dan jawaban, foto 4 penanda sudut, lalu bandingkan hasil dengan overlay. Jika hasil salah, kirim foto asli dan screenshot overlay. Build sukses **tidak** berarti akurasi OMR sudah teruji.
 
-## Usage
-Choose correct format (A5 20 A-D etc), tap Photo LJK or Select Photo, inspect participant code and responses, review warnings. Use full-page photo with all four corner marks visible and minimal shadows. Printed page must be at actual size 100%.
-
-## Technical
-Kotlin, Android SDK 35, min 28, AndroidX Core FileProvider. No network, Firebase, OpenCV, or paid services. OMR thresholds in `OmrReader.kt` are preliminary and must be calibrated.
+## Catatan
+Format scan masih dibatasi ke tiga file JSON: A5 20 A-D, A5 30 A-E, A4 50 A-E. Tidak otomatis mendukung seluruh custom generator. Kinerja belum diverifikasi dengan Android SDK atau perangkat fisik dalam lingkungan pembuatan ini.
