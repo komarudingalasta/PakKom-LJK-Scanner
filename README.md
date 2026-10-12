@@ -1,31 +1,31 @@
-# PakKom LJK Scanner — Android Native v1.0 (Tahap Generator)
+# PakKom LJK Scanner Android v1.0.1
 
-Proyek Android Studio (Kotlin) untuk membuat PDF LJK **Personal** dan **Umum**, 50 soal A–E, kertas A4. Tidak memakai Firebase, tidak memerlukan izin internet, dan tidak menyimpan identitas ke server.
+Aplikasi Android native berbasis **Kotlin**, offline, tanpa Firebase. Versi ini adalah **generator PDF LJK 50 soal A–E**, **belum scanner kamera**.
 
-## Cara membuka dan membuat APK
-1. Instal Android Studio versi yang mendukung Android Gradle Plugin 8.6.1, JDK 17, Android SDK 35.
-2. Ekstrak ZIP ini, pilih **Open** dan arahkan ke folder `PakKom-LJK-Android-v1`.
-3. Tunggu Gradle Sync; unduhan plugin/dependensi memerlukan internet saat build pertama.
-4. Hubungkan HP Android (USB debugging) lalu klik Run, atau pilih **Build > Build APK(s)**.
-5. APK debug berada di `app/build/outputs/apk/debug/app-debug.apk` setelah build sukses.
+## Fitur saat ini
+- PDF A4 **LJK Personal** (nama, NIS, kelas, kode ujian, paket, QR).
+- PDF A4 **LJK Umum** (isian nama, NIS 8 digit, paket A–D).
+- Penanda registrasi di empat sudut; peta koordinat `app/src/main/assets/omr_coordinates_v1.json`.
+- Menyimpan PDF melalui dialog penyimpanan Android, tanpa izin storage luas.
+- Offline; tidak ada login, Firebase, analytics, atau pengiriman data.
 
-## Fungsi yang sudah diimplementasikan
-- Form identitas, pemilihan LJK Personal/Umum dan paket A–D.
-- PDF A4 vektor dengan 4 marker sudut, 50 nomor A–E.
-- LJK Personal: identitas tercetak dan QR Code.
-- LJK Umum: kolom NIS 8 digit dengan bulatan 0–9 serta paket A–D.
-- Menyimpan PDF melalui Android Storage Access Framework (pengguna memilih folder).
-- Peta koordinat OMR `app/src/main/assets/omr_coordinates_v1.json`, sama dengan prototipe tahap sebelumnya.
+## Cara paling mudah membuat APK via GitHub
+1. Buat repository GitHub, cabang `main`.
+2. **Upload seluruh isi folder ini ke akar repository** (folder `app`, `.github`, `tools`, file `build.gradle.kts`, dll.). Jangan upload ZIP tanpa diekstrak; jangan masukkan folder induk ekstra.
+3. Buka **Actions → Build Android APK → Run workflow**.
+4. Jika build sukses, buka run → **Artifacts → PakKom-LJK-Scanner-v1.0.1-debug**.
+5. Ekstrak hasil unduhan artifacts untuk memperoleh `app-debug.apk`; pasang pada HP Android untuk pengujian.
 
-## Batasan penting
-- **Belum ada kamera, pembaca OMR, input kunci, atau penilaian** pada tahap ini. Fitur tersebut adalah tahap berikutnya.
-- **Belum dibuat APK siap instal** karena Android SDK/Gradle build tidak tersedia di lingkungan pembuatan ini; source disediakan untuk build Android Studio/GitHub Actions.
-- PDF dan QR harus diuji cetak fisik pada 100% dan diuji baca sebelum digunakan untuk ujian sungguhan.
-- QR berisi `PKLJK1|NIS|KODE_UJIAN|PAKET`; **tidak mengandung kunci jawaban**. Jangan masukkan informasi sensitif dalam kode ujian.
-- Desain LJK Umum menempatkan bulatan NIS dalam grid sempit. Harus divalidasi saat pencetakan dan dapat direvisi jika tingkat pembacaan rendah.
-- Build mengandalkan Maven/Google repositories untuk mengunduh ZXing QR dependency.
+**Penting:** Ini menggunakan Gradle terpasang oleh workflow GitHub Actions, sehingga tidak memerlukan `gradlew`/wrapper. Jika ingin membangun lokal melalui Android Studio, buka folder proyek dan gunakan Gradle 8.7 + JDK 17 + Android SDK 35.
 
-## Rencana selanjutnya
-- v1.1: CameraX, deteksi marker, koreksi perspektif, pembaca OMR dari foto.
-- v1.2: Live Scan tanpa tombol foto, validasi multi-frame, koreksi otomatis.
-- v1.3+: Room untuk database siswa, nilai, dan analisis.
+## Persyaratan dan batasan
+- Android 9+ (`minSdk=28`), `compileSdk=35`.
+- Kotlin 2.0.21, Android Gradle Plugin 8.6.1, Gradle 8.7, Java 17.
+- ZXing core 3.5.3 untuk QR Code saat PDF dibuat.
+- **Belum teruji build APK pada lingkungan pembuat source**; workflow disertakan untuk memverifikasi hasil build di GitHub.
+- Template perlu diuji pada printer nyata dengan skala 100% sebelum dijadikan standar OMR.
+- NIS LJK Umum adalah **8 digit**; kebutuhan NIS berbeda panjang perlu revisi template.
+- APK dari Actions adalah **debug**, bukan release bertanda tangan untuk distribusi publik.
+
+## Selanjutnya
+v1.1: CameraX, OpenCV, deteksi empat marker, koreksi perspektif, dan pembacaan foto statis. v1.2: live scanning.
