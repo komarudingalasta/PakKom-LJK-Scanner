@@ -1,16 +1,13 @@
-# PakKom LJK Scanner v1.3.3 — Hotfix Deteksi Sudut
+# PakKom LJK Scanner v1.4.0 — Perspective Safety
 
-Fokus: memperbaiki kegagalan mendeteksi empat kotak hitam saat memindai foto dari galeri.
+Hotfix untuk mencegah hasil OMR palsu akibat deteksi empat penanda yang salah.
 
-## Perubahan
-- Deteksi komponen hitam pada seluruh foto, bukan hanya 25% bagian sudut foto.
-- Beberapa ambang hitam (75, 105, 135, 165).
-- Seleksi bentuk kotak, kepadatan isi, ukuran, dan konsistensi geometri empat sudut.
-- Mengikuti urutan koordinat PDF: kiri atas, kiri bawah, kanan atas, kanan bawah.
-- Algoritma pembacaan bulatan v1.3.1 dan branding v1.3.2 tetap dipertahankan.
+- Memvalidasi rasio fisik antarpenanda sesuai format PDF.
+- Memeriksa konsistensi ukuran penanda, bentuk, area dan distorsi perspektif.
+- Memeriksa ulang keempat penanda setelah gambar diluruskan.
+- Jika validasi gagal, proses pembacaan **dihentikan** (tidak mengeluarkan jawaban palsu).
+- Tidak menambah penyimpanan atau analisis.
 
-## Cara pasang
-Ekstrak ZIP lalu upload seluruh isi folder ke root repository GitHub. Commit dan jalankan Build Android APK pada Actions.
+**Penting:** Versi ini mengutamakan keselamatan pembacaan; beberapa foto yang kurang baik mungkin ditolak. Belum ada uji akurasi dengan foto asli dan belum diverifikasi build Android. Gunakan foto seluruh kertas yang lurus, tidak terpotong, dengan empat kotak hitam terlihat.
 
-## Batasan
-Perubahan ini belum diuji dengan foto asli pada Android dan belum diverifikasi build APK-nya. Jika foto masih gagal, perlu contoh foto asli dan log diagnostik. Jangan gunakan hasil OMR untuk penilaian resmi sebelum uji akurasi.
+Unggah seluruh isi folder ini ke root repository GitHub, kemudian jalankan workflow Build Android APK.
