@@ -1,22 +1,20 @@
-# PakKom LJK Scanner Android v1.0.2
+# PakKom LJK Scanner Android v1.1 - Universal A4/A5
 
-Proyek Android Kotlin untuk membuat PDF LJK Personal dan Umum, masing-masing 50 soal A-E. Ini **belum** memiliki fitur pemindaian kamera/OMR.
+**Source Android Studio untuk upload ke root repository GitHub**. Ini adalah aplikasi generator PDF, **belum scanner kamera/OMR**.
 
-## Upload ke GitHub
+## Fitur
+- LJK Universal A4 dan A5, 50 soal A-E
+- Kode peserta 3 digit, pilihan paket A-D
+- Nama/kelas/tanggal ditulis siswa
+- PDF vektor dengan koordinat OMR dalam assets/coordinates-A4.json dan coordinates-A5.json
+- Simpan PDF via Android Storage Access Framework
+- GitHub Actions membangun APK debug dan mengunggah artifact
 
-1. Ekstrak ZIP ini.
-2. Hapus workflow lama `.github/workflows/build-apk.yml` di repository jika perlu, kemudian unggah seluruh isi hasil ekstrak ke **root** repository. Pastikan file `.github/workflows/build-apk.yml` ikut terunggah.
-3. Commit ke branch `main`.
-4. Buka **Actions > Build Android APK** dan jalankan workflow atau tunggu trigger push.
-5. Bila sukses, ambil ZIP artifact `PakKom-LJK-Scanner-v1.0.2-debug` dan ekstrak `app-debug.apk` untuk pengujian.
-
-## Perubahan v1.0.2
-
-- Menghapus ketergantungan `android-actions/setup-android@v3` yang sebelumnya gagal memasang paket SDK legacy `tools`.
-- Menyiapkan SDK dengan `sdkmanager` yang tersedia di GitHub-hosted runner Ubuntu dan hanya menginstal `platforms;android-35`, `build-tools;35.0.0`, dan `platform-tools`.
-- Memperbaiki indentasi workflow YAML.
-- Mempertahankan generator PDF, QR Code, dan koordinat LJK dari v1.0.1.
+## Cara upload
+Ekstrak ZIP, lalu unggah **isi folder** ke root repository (termasuk `.github/workflows/build-apk.yml`). Hapus file lama `app/src/main/assets/omr_coordinates_v1.json` jika masih ada. Hapus workflow lama yang tidak diperlukan. Jalankan Actions > Build Android APK.
 
 ## Catatan
-
-Build APK belum dijalankan di lingkungan ini (tidak ada Android SDK/Gradle runner). Workflow harus diverifikasi lewat GitHub Actions. Source tidak perlu Firebase dan tidak mengirim hasil scan ke server.
+- APK belum berhasil diverifikasi melalui GitHub Actions dari lingkungan ini.
+- PDF dan koordinat diadaptasi dari generator v1.1. Akurasi pemindaian kamera belum diuji.
+- Kode peserta 000-999 hanya unik di lingkup ujian aktif.
+- Cetak PDF pada 100% (actual size), jangan fit-to-page.
