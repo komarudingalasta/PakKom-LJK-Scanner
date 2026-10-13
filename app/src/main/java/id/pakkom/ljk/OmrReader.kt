@@ -64,46 +64,47 @@ class OmrReader(private val layout: JSONObject) {
     }
 
     /**
-     * Sample the central ink area, excluding the printed outline. Estimate background
-     * from a surrounding annulus. Small registration offsets are handled by a local
-     * 3x3 center search; use the median of the strongest samples, not one pixel.
-     * Score is normalized dark-pixel coverage, not a global mean contrast threshold.
+     * Lighting-aware mark score. Compare the *interior* of each bubble with
+     * nearby paper, not with a global gray threshold. The surrounding annulus
+     * uses its brighter percentile to avoid text, bubble outlines and shadows.
+     * We sample the central 48% of the nominal radius to exclude printed rims.
      */
     private fun fillScore(image: Bitmap, xy: Pair<Double,Double>, radiusMm: Double): Double {
         val cx=(xy.first*scale).roundToInt()
         val cy=(xy.second*scale).roundToInt()
-        val core=max(3,(radiusMm*scale*0.56).roundToInt())
-        val outer=max(core+3,(radiusMm*scale*1.85).roundToInt())
-        val ringStart=(radiusMm*scale*1.35).roundToInt()
-        var backgroundSum=0.0;var backgroundCount=0
-        for (dy in -outer..outer step 2) for (dx in -outer..outer step 2) {
+        val radius=radiusMm*scale
+        val core=max(3,(radius*0.48).roundToInt())
+        val innerRing=max(core+2,(radius*1.42).roundToInt())
+        val outerRing=max(innerRing+2,(radius*2.05).roundToInt())
+        val paper=ArrayList<Int>()
+        for(dy in -outerRing..outerRing step 2) for(dx in -outerRing..outerRing step 2){
             val d2=dx*dx+dy*dy
-            if(d2<ringStart*ringStart || d2>outer*outer)continue
+            if(d2<innerRing*innerRing || d2>outerRing*outerRing)continue
             val x=cx+dx;val y=cy+dy
-            if(x in 0 until image.width && y in 0 until image.height){
-                backgroundSum+=gray(image.getPixel(x,y));backgroundCount++
-            }
+            if(x in 0 until image.width && y in 0 until image.height)
+                paper.add(gray(image.getPixel(x,y)))
         }
-        if(backgroundCount<8)return 0.0
-        val bg=backgroundSum/backgroundCount
-        val threshold=min(180.0,bg-38.0)
-        if(threshold<65)return 0.0
+        if(paper.size<20)return 0.0
+        paper.sort()
+        // The brighter portion represents local paper despite scattered dark ink.
+        val bg=paper[(paper.size*0.70).toInt().coerceIn(0,paper.lastIndex)].toDouble()
+        if(bg<65.0)return 0.0 // too dark to distinguish ink reliably
         val scores=ArrayList<Double>(9)
-        for (oy in -2..2 step 2) for(ox in -2..2 step 2) {
-            var dark=0;var count=0;var contrast=0.0
+        for(oy in -2..2 step 2)for(ox in -2..2 step 2){
+            var count=0;var dark=0;var contrast=0.0
             for(dy in -core..core)for(dx in -core..core){
                 if(dx*dx+dy*dy>core*core)continue
                 val x=cx+ox+dx;val y=cy+oy+dy
                 if(x !in 0 until image.width || y !in 0 until image.height)continue
-                val g=gray(image.getPixel(x,y)).toDouble()
-                if(g<threshold)dark++
-                contrast+=(bg-g).coerceAtLeast(0.0)
+                val delta=bg-gray(image.getPixel(x,y))
+                if(delta>max(26.0,bg*0.14))dark++
+                contrast+=delta.coerceAtLeast(0.0)
                 count++
             }
             if(count>0){
                 val coverage=dark.toDouble()/count
-                val darkness=(contrast/count/180.0).coerceIn(0.0,1.0)
-                scores.add(coverage*0.72+darkness*0.28)
+                val strength=(contrast/count/110.0).coerceIn(0.0,1.0)
+                scores.add(coverage*0.75+strength*0.25)
             }
         }
         return scores.sortedDescending().take(3).average().takeIf{!it.isNaN()}?:0.0
