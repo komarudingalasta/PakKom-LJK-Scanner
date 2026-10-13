@@ -52,19 +52,28 @@ class LjkGenerator(private val layout: JSONObject) {
             val s=textSafe(school,52)
             if(s.isNotBlank()) c.label(s,pw/2f,headY-7f,if(compact)7f else 8.5f,false,true)
             c.label("Nama: ................................................",17f,headY+10f,if(compact)7.5f else 9f)
-            c.label("Kelas: ...................",17f,headY+18f,if(compact)7.5f else 9f)
-            val ids=layout.getJSONObject("participant_code")
-            val first=ids.getJSONObject("1").getJSONArray("0")
-            val idY=first.getDouble(1).toFloat()
-            c.label("KODE PESERTA (3 DIGIT)",17f,idY-8f,if(compact)7.5f else 9f,true)
-            for(d in 1..3) {
-                val row=ids.getJSONObject(d.toString())
-                for(v in 0..9) {
-                    val xy=row.getJSONArray(v.toString())
-                    val x=xy.getDouble(0).toFloat();val y=xy.getDouble(1).toFloat()
-                    c.circle(x,y,if(compact)2.2f else 2.5f)
-                    // Digits appear INSIDE the bubble, keeping print minimal.
-                    c.label(v.toString(),x,y+0.9f,if(compact)5.5f else 6.5f,false,true)
+            c.label("Kelas: ...................",17f,headY+16f,if(compact)7.5f else 9f)
+            val identity=layout.getJSONObject("identity_bubbles")
+            val groups=listOf(
+                "grade_tens" to "TINGKAT 10",
+                "grade_units" to "TINGKAT 1",
+                "room" to "ROMBEL",
+                "attendance_tens" to "ABSEN 10",
+                "attendance_units" to "ABSEN 1"
+            )
+            c.label("IDENTITAS PESERTA",17f,if(compact)43f else 44f,if(compact)7f else 9f,true)
+            for((key,heading) in groups) {
+                val row=identity.getJSONObject(key)
+                val firstKey=row.keys().asSequence().first()
+                val first=row.getJSONArray(firstKey)
+                val x=first.getDouble(0).toFloat()
+                val y=first.getDouble(1).toFloat()
+                c.label(heading,x,y-4.5f,if(compact)5.4f else 7f,true,true)
+                for (choice in row.keys()) {
+                    val xy=row.getJSONArray(choice)
+                    val cx=xy.getDouble(0).toFloat(); val cy=xy.getDouble(1).toFloat()
+                    c.circle(cx,cy,if(compact)1.65f else 2.1f)
+                    c.label(choice,cx,cy+0.65f,if(compact)4.1f else 5f,false,true)
                 }
             }
             val answers=layout.getJSONObject("answers")
