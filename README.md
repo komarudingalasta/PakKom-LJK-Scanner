@@ -1,14 +1,15 @@
-# PakKom LJK Scanner v1.5 — Stability
+# PakKom LJK Scanner v1.5.1 — Lighting & Shadow Correction
 
-Versi konservatif dari v1.4 yang dilaporkan berhasil pada uji kertas. **Mesin OMR dan validasi perspektif v1.4 tidak diubah.**
+Android Kotlin source for GitHub Actions. Built on v1.5; registration mark detection and perspective validation are unchanged.
 
-Perubahan: label versi, petunjuk uji kemiringan 0°/10°/20°, tombol bersihkan hasil/scan ulang, dan status bahwa perspektif tervalidasi jika pembacaan berhasil. Tidak ada database, nilai, analisis, atau penyimpanan.
+## Changes
+- Bubble interior sampling uses 48% of nominal radius, excluding the printed outline.
+- Local paper brightness is estimated from the 70th percentile of a surrounding annulus, reducing sensitivity to uneven illumination and stray ink.
+- Local relative contrast is used instead of a fixed absolute grayscale threshold.
+- Existing ambiguous/empty answer logic, camera, gallery, layouts and PDF generation are preserved.
 
-## Uji penerimaan
-1. Cetak PDF A5 20 soal A–D pada skala 100%.
-2. Isi kode peserta dan jawaban yang diketahui; foto lurus 0°, lalu 10° dan 20° dengan semua penanda terlihat.
-3. Cocokkan kode, setiap jawaban, dan jawaban kosong. Bandingkan kamera dan galeri.
-4. Jika salah satu foto gagal, jangan gunakan hasilnya untuk penilaian. Kirim foto dan tampilan overlay untuk kalibrasi.
+## Important
+This is an experimental OMR improvement, **not yet validated on real printed sheets or built on a device**. Compare against v1.5 with the same sheet, including code 213 and intentionally blank answers. If accuracy worsens, revert to v1.5. Avoid harsh shadows and glare; no algorithm can recover details hidden by severe darkness.
 
-## GitHub
-Ekstrak ZIP, unggah **isi** folder ke root repository (termasuk `.github`), commit, jalankan workflow Build Android APK. Build dan akurasi belum diuji di perangkat dalam lingkungan ini.
+## Install
+Extract the ZIP into the root of the existing GitHub repository, commit, run the existing GitHub Actions APK workflow, and test the resulting APK.
