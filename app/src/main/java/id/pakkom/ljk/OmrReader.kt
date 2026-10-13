@@ -42,7 +42,7 @@ class OmrReader(private val layout: JSONObject) {
         for (d in 1..3) {
             val row=digits.getJSONObject(d.toString())
             val scores=(0..9).map { i -> fillScore(normalized,coords(row.getJSONArray(i.toString())),1.75) }
-            val selected=select(scores)
+            val selected=select(scores, true)
             code.append(if(selected<0) '?' else ('0'+selected))
             if(selected<0)warnings.add("Kode peserta digit $d kosong, ganda, atau tidak jelas")
         }
@@ -51,8 +51,8 @@ class OmrReader(private val layout: JSONObject) {
         val answers=(1..layout.getInt("question_count")).map { n ->
             val row=answerJson.getJSONObject(n.toString())
             val scores=options.map { fillScore(normalized,coords(row.getJSONArray(it.toString())),2.10) }
-            val choice=select(scores)
-            if(choice==-2) { warnings.add("Soal $n: tanda ganda atau tidak jelas"); "?" }
+            val choice=select(scores, false)
+            if(choice==-2) { warnings.add("Soal $n: tanda ganda atau tidak jelas; skor " + options.mapIndexed { i, c -> "$c=${"%.2f".format(java.util.Locale.US, scores[i])}" }.joinToString(" ")); "?" }
             else if(choice==-1) "-" else options[choice].toString()
         }
         val overlay=normalized.copy(Bitmap.Config.ARGB_8888,true)
@@ -111,15 +111,27 @@ class OmrReader(private val layout: JSONObject) {
         return scores.sortedDescending().take(3).average().takeIf{!it.isNaN()}?:0.0
     }
 
-    /** Never force a choice when the two strongest bubbles look equally filled. */
-    private fun select(scores: List<Double>): Int {
-        if(scores.isEmpty())return -2
-        val ranked=scores.indices.sortedByDescending { scores[it] }
-        val best=ranked[0];val top=scores[best]
-        val second=if(ranked.size>1)scores[ranked[1]] else 0.0
-        if(top<0.14)return -1
-        if(top<0.24)return -2
-        if(second>=0.24 && (top-second<0.15 || second>=top*0.72))return -2
+    /**
+     * Conservative decision: blank paper can be shaded or have printed rim ink.
+     * Require both absolute fill strength AND clear separation from the other
+     * choices. A weak candidate is uncertain, never automatically accepted.
+     * The thresholds are provisional until validated against labeled scans.
+     */
+    private fun select(scores: List<Double>, isDigit: Boolean): Int {
+        if (scores.isEmpty()) return -2
+        val ranked = scores.indices.sortedByDescending { scores[it] }
+        val best = ranked[0]
+        val top = scores[best]
+        val second = if (ranked.size > 1) scores[ranked[1]] else 0.0
+        // A low absolute response with little separation is genuinely blank.
+        if (top < 0.17) return -1
+        // Require a visibly filled core, not just an unusually dark outline.
+        val minimum = if (isDigit) 0.31 else 0.34
+        if (top < minimum) return -2
+        // Guard against false positives from local shadow gradients.
+        if (top - second < 0.20 || second >= top * 0.62) return -2
+        // A second clearly filled bubble is always ambiguous.
+        if (second >= minimum) return -2
         return best
     }
     /** Advisory photo-quality checks. These never override decoded answers or reject a sheet. */
