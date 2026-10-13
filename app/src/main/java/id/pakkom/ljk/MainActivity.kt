@@ -17,7 +17,7 @@ import androidx.core.content.FileProvider
 import org.json.JSONObject
 import java.io.File
 
-/** v1.6.7: balanced homepage; OMR algorithm and JSON assets unchanged. */
+/** v1.6.8: balanced homepage; OMR algorithm and JSON assets unchanged. */
 class MainActivity : ComponentActivity() {
     private lateinit var mode: Spinner
     private lateinit var root: LinearLayout
@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
         return page
     }
 
-    /** v1.6.7: balanced, responsive homepage with consistent native vector icons. */
+    /** v1.6.8: balanced, responsive homepage with consistent native vector icons. */
     private fun showHome() {
         val page=newPage()
         page.setPadding(20.dp,20.dp,20.dp,20.dp)
@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
         header.addView(brandBox,LinearLayout.LayoutParams(44.dp,44.dp).apply {rightMargin=10.dp})
         val identity=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
         RetroUi.add(identity,RetroUi.text(this,"PakKom LJK",21f,true,RetroUi.green))
-        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.6.7",10f,true,RetroUi.brown),2)
+        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.6.8",10f,true,RetroUi.brown),2)
         header.addView(identity,LinearLayout.LayoutParams(0,-2,1f))
         val settings=LinearLayout(this).apply {
             gravity=Gravity.CENTER;isClickable=true;isFocusable=true
