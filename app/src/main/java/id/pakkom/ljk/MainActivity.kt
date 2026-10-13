@@ -15,6 +15,7 @@ import android.view.View
 import android.widget.*
 import androidx.core.content.FileProvider
 import org.json.JSONObject
+import org.json.JSONArray
 import java.io.File
 
 /** v1.6.9: balanced homepage; OMR algorithm and JSON assets unchanged. */
@@ -32,6 +33,67 @@ class MainActivity : ComponentActivity() {
     private var lastAnswers: List<String> = emptyList()
     private var lastWarnings: List<String> = emptyList()
     private var isReading = false
+    private var scanningKey = false
+    private fun formatSize() = when(selectedFormatIndex) { 0 -> 20; 1 -> 30; else -> 50 }
+    private fun formatChoices() = if(selectedFormatIndex == 0) listOf("A","B","C","D") else listOf("A","B","C","D","E")
+    private fun keyStorageName() = "key_${selectedFormatIndex}"
+    private fun loadKey(): MutableList<String> {
+        val size = formatSize()
+        val saved = getSharedPreferences("pakkom_keys", MODE_PRIVATE).getString(keyStorageName(), null)
+        if(saved == null) return MutableList(size) { "" }
+        return try {
+            val a = JSONArray(saved)
+            MutableList(size) { i -> if(i < a.length()) a.optString(i).takeIf { it in formatChoices() } ?: "" else "" }
+        } catch (_: Exception) { MutableList(size) { "" } }
+    }
+    private fun saveKey(key: List<String>) {
+        getSharedPreferences("pakkom_keys", MODE_PRIVATE).edit().putString(keyStorageName(), JSONArray(key).toString()).apply()
+    }
+    private fun showKeyEditor() {
+        val page = newPage()
+        RetroUi.add(page, RetroUi.action(this,"‹  Kembali",RetroUi.cream,RetroUi.green){showHome()},0,12)
+        RetroUi.add(page,RetroUi.text(this,"Kunci Jawaban",23f,true,RetroUi.green),0,5)
+        val formats = listOf("A5 · 20 Soal · A–D","A5 · 30 Soal · A–E","A4 · 50 Soal · A–E")
+        RetroUi.add(page,RetroUi.text(this,formats[selectedFormatIndex],12f,false,RetroUi.brown),0,12)
+        val key = loadKey()
+        val status=RetroUi.text(this,"Terisi ${key.count { it.isNotEmpty() }} dari ${key.size} soal",13f,true,RetroUi.green)
+        RetroUi.add(page,status,0,12)
+        val grid = RetroUi.panel(this)
+        val choices = listOf("—") + formatChoices()
+        for(i in key.indices) {
+            val line=LinearLayout(this).apply { orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL }
+            line.addView(RetroUi.text(this,"%02d".format(i+1),14f,true,RetroUi.green),LinearLayout.LayoutParams(50.dp,-2))
+            val spinner=Spinner(this)
+            spinner.adapter=ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,choices)
+            spinner.setSelection(if(key[i].isEmpty()) 0 else choices.indexOf(key[i]).coerceAtLeast(0))
+            spinner.onItemSelectedListener=object:android.widget.AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent:android.widget.AdapterView<*>?) {}
+                override fun onItemSelected(parent:android.widget.AdapterView<*>?,view:View?,position:Int,id:Long) {
+                    key[i]=if(position==0) "" else choices[position]
+                    status.text="Terisi ${key.count { it.isNotEmpty() }} dari ${key.size} soal"
+                }
+            }
+            line.addView(spinner,LinearLayout.LayoutParams(0,48.dp,1f))
+            RetroUi.add(grid,line)
+        }
+        RetroUi.add(page,grid,0,12)
+        RetroUi.add(page,RetroUi.action(this,"SIMPAN KUNCI",RetroUi.orange){
+            saveKey(key);toast("Kunci tersimpan di perangkat");showHome()
+        },0,9)
+        RetroUi.add(page,RetroUi.action(this,"SCAN LEMBAR KUNCI",RetroUi.green){
+            saveKey(key);scanningKey=true;openLive()
+        },0,9)
+        RetroUi.add(page,RetroUi.text(this,"Kunci disimpan offline berdasarkan format. Jawaban kosong tidak dihitung benar. Hasil scan kunci harus diperiksa sebelum disimpan.",12f,false,RetroUi.brown))
+    }
+    private fun showScannedKey(answers:List<String>) {
+        val options=formatChoices()
+        val proposed=answers.map { if(it in options) it else "" }.toMutableList()
+        val unclear=answers.count { it !in options }
+        android.app.AlertDialog.Builder(this).setTitle("Konfirmasi kunci hasil scan")
+            .setMessage("${proposed.count { it.isNotEmpty() }} jawaban terbaca; $unclear kosong/tidak jelas. Periksa semua nomor pada editor sebelum digunakan.")
+            .setPositiveButton("Buka editor") { _,_ -> saveKey(proposed);showKeyEditor() }
+            .setNegativeButton("Batal") { _,_ -> showHome() }.show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +125,7 @@ class MainActivity : ComponentActivity() {
         header.addView(brandBox,LinearLayout.LayoutParams(44.dp,44.dp).apply {rightMargin=10.dp})
         val identity=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
         RetroUi.add(identity,RetroUi.text(this,"PakKom LJK",21f,true,RetroUi.green))
-        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.6.9",10f,true,RetroUi.brown),2)
+        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.7.0",10f,true,RetroUi.brown),2)
         header.addView(identity,LinearLayout.LayoutParams(0,-2,1f))
         val settings=LinearLayout(this).apply {
             gravity=Gravity.CENTER;isClickable=true;isFocusable=true
@@ -88,6 +150,12 @@ class MainActivity : ComponentActivity() {
             setSelection(selectedFormatIndex);minimumHeight=43.dp
         }
         formatRow.addView(mode,LinearLayout.LayoutParams(0,-2,1f))
+        mode.onItemSelectedListener=object:android.widget.AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent:android.widget.AdapterView<*>?) {}
+            override fun onItemSelected(parent:android.widget.AdapterView<*>?,view:View?,position:Int,id:Long) {
+                selectedFormatIndex=position
+            }
+        }
         RetroUi.add(page,formatRow,0,14)
 
         val hero=RetroUi.panel(this,RetroUi.greenLight).apply {setPadding(15.dp,14.dp,15.dp,14.dp)}
@@ -119,6 +187,12 @@ class MainActivity : ComponentActivity() {
         gallery.addView(RetroUi.text(this,"Pilih dari Galeri",14f,true,RetroUi.green))
         RetroUi.add(hero,gallery,6)
         RetroUi.add(page,hero,0,14)
+        val keyCard=RetroUi.panel(this)
+        val currentKey=loadKey()
+        RetroUi.add(keyCard,RetroUi.text(this,"Kunci Jawaban",16f,true,RetroUi.green),0,5)
+        RetroUi.add(keyCard,RetroUi.text(this,"${currentKey.count { it.isNotEmpty() }}/${currentKey.size} soal terisi · Tersimpan offline",12f,false,RetroUi.brown),0,10)
+        RetroUi.add(keyCard,RetroUi.action(this,"Kelola Kunci Jawaban",RetroUi.greenLight,RetroUi.green){selectedLayoutSafely();showKeyEditor()})
+        RetroUi.add(page,keyCard,0,14)
 
         val guide=RetroUi.panel(this,RetroUi.cream).apply {setPadding(14.dp,13.dp,14.dp,13.dp)}
         val guideHeader=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
@@ -181,6 +255,26 @@ class MainActivity : ComponentActivity() {
             "Terisi: $marked     Kosong: $unanswered     Tidak jelas: $unclear",
             13f, true, RetroUi.green))
         RetroUi.add(page, summary, 0, 12)
+        val answerKey=loadKey()
+        if(answerKey.any { it.isNotEmpty() }) {
+            val graded=RetroUi.panel(this,RetroUi.greenLight)
+            val correct=lastAnswers.indices.count { i -> i < answerKey.size && answerKey[i].isNotEmpty() && lastAnswers[i]==answerKey[i] }
+            val missingKey=answerKey.count { it.isEmpty() }
+            val review=lastAnswers.count { it=="?" }
+            val wrong=lastAnswers.indices.count { i -> i < answerKey.size && answerKey[i].isNotEmpty() && lastAnswers[i] != answerKey[i] && lastAnswers[i] != "?" && lastAnswers[i] != "-" && lastAnswers[i] != "–" }
+            RetroUi.add(graded,RetroUi.text(this,"KOREKSI OTOMATIS",13f,true,RetroUi.green),0,7)
+            RetroUi.add(graded,RetroUi.text(this,"Benar: $correct   Salah: $wrong   Kosong: $unanswered",14f,true,RetroUi.green),0,6)
+            if(missingKey==0 && review==0 && !codeUnclear) {
+                val score=100.0*correct/answerKey.size
+                RetroUi.add(graded,RetroUi.text(this,"Nilai: %.1f / 100".format(java.util.Locale.US,score),24f,true,RetroUi.green),0,5)
+            } else {
+                RetroUi.add(graded,RetroUi.text(this,"Nilai final ditahan: $missingKey kunci kosong, $review jawaban tidak jelas${if(codeUnclear) ", kode peserta meragukan" else ""}.",12f,true,RetroUi.orange),0,5)
+            }
+            RetroUi.add(graded,RetroUi.text(this,"Skor sementara berbobot sama. Periksa LJK asli sebelum menetapkan nilai.",11f,false,RetroUi.brown))
+            RetroUi.add(page,graded,0,12)
+        } else {
+            RetroUi.add(page,RetroUi.action(this,"Atur Kunci Jawaban untuk Koreksi",RetroUi.greenLight,RetroUi.green){showKeyEditor()},0,12)
+        }
 
         if (needsReview) {
             val warning = RetroUi.panel(this)
@@ -312,6 +406,12 @@ class MainActivity : ComponentActivity() {
                 val result = OmrReader(layout).read(upright)
                 val warnings = result.qualityNotes + result.warnings
                 runOnUiThread {
+                    if(scanningKey) {
+                        scanningKey=false
+                        isReading=false
+                        showScannedKey(result.answers)
+                        return@runOnUiThread
+                    }
                     lastImage = result.overlay
                     lastCode = result.code
                     lastFormat = layout.getString("format_id")
@@ -322,7 +422,7 @@ class MainActivity : ComponentActivity() {
                     showResult()
                 }
             } catch(e: Exception) {
-                runOnUiThread { isReading = false; toast("Pemindaian belum berhasil: ${e.message}") }
+                runOnUiThread { isReading = false; scanningKey=false; toast("Pemindaian belum berhasil: ${e.message}") }
             }
         }.start()
     }
