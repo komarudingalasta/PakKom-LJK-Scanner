@@ -28,7 +28,7 @@ class MainActivity : Activity() {
         setContentView(ScrollView(this).apply { addView(root) })
         fun label(t:String,size:Float=15f)=TextView(this).apply {text=t;textSize=size;setTextColor(Color.rgb(22,55,63));setPadding(0,8.dp,0,8.dp);root.addView(this)}
         label("PakKom LJK Scanner",24f)
-        label("v1.5 · Scanner Stability · uji cetak dan kemiringan",14f)
+        label("v1.5.2 · Quality Check · pemeriksaan pencahayaan",14f)
         label("Pilih format lembar")
         mode=Spinner(this).apply { adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,listOf("A5 · 20 soal · A–D","A5 · 30 soal · A–E","A4 · 50 soal · A–E"));root.addView(this) }
         label("Foto seluruh kertas dengan keempat kotak hitam terlihat. Uji posisi lurus, miring sekitar 10°, dan 20°. Gunakan cahaya rata.",13f)
@@ -68,6 +68,8 @@ class MainActivity : Activity() {
                     append("FORMAT: ${layout.getString("format_id")}\nKODE PESERTA: ${result.code}\nSTATUS: LJK terdeteksi dan perspektif tervalidasi\n\n")
                     result.answers.forEachIndexed {i,v->append("${i+1}. $v    ");if((i+1)%4==0)append("\n")}
                     append("\n\nKeterangan: - = kosong, ? = tidak jelas / ganda\n")
+                    if(result.qualityNotes.isNotEmpty())append("\nKUALITAS FOTO (SARAN):\n" + result.qualityNotes.joinToString("\n") + "\n")
+                    else append("\nKUALITAS FOTO: tidak ditemukan masalah pencahayaan mencolok (bukan jaminan akurasi).\n")
                     if(result.warnings.isNotEmpty())append("\nPERIKSA MANUAL:\n"+result.warnings.joinToString("\n"))
                     else append("\nTidak ada peringatan otomatis. Tetap cocokkan dengan lembar asli.")
                 }
