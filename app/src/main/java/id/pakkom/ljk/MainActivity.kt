@@ -17,7 +17,7 @@ import androidx.core.content.FileProvider
 import org.json.JSONObject
 import java.io.File
 
-/** v1.6.3: retro UI and result screen only. OMR algorithm and JSON assets unchanged. */
+/** v1.6.7: balanced homepage; OMR algorithm and JSON assets unchanged. */
 class MainActivity : ComponentActivity() {
     private lateinit var mode: Spinner
     private lateinit var root: LinearLayout
@@ -50,90 +50,93 @@ class MainActivity : ComponentActivity() {
         return page
     }
 
-    /** v1.6.6: rebuilt home hierarchy, not merely resized widgets. */
+    /** v1.6.7: balanced, responsive homepage with consistent native vector icons. */
     private fun showHome() {
-        val page = newPage()
-        page.setPadding(20.dp, 22.dp, 20.dp, 24.dp)
+        val page=newPage()
+        page.setPadding(20.dp,20.dp,20.dp,20.dp)
+        val header=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
+        val brandBox=LinearLayout(this).apply {
+            gravity=Gravity.CENTER
+            background=RetroUi.background(RetroUi.green,12.dp.toFloat(),RetroUi.green,0)
+            addView(ScannerIconView(this@MainActivity,ScannerIconView.Kind.SCAN,RetroUi.cream),LinearLayout.LayoutParams(27.dp,27.dp))
+        }
+        header.addView(brandBox,LinearLayout.LayoutParams(44.dp,44.dp).apply {rightMargin=10.dp})
+        val identity=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
+        RetroUi.add(identity,RetroUi.text(this,"PakKom LJK",21f,true,RetroUi.green))
+        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.6.7",10f,true,RetroUi.brown),2)
+        header.addView(identity,LinearLayout.LayoutParams(0,-2,1f))
+        val settings=LinearLayout(this).apply {
+            gravity=Gravity.CENTER;isClickable=true;isFocusable=true
+            contentDescription="Pengaturan dan bantuan"
+            addView(ScannerIconView(this@MainActivity,ScannerIconView.Kind.SETTINGS,RetroUi.green),LinearLayout.LayoutParams(25.dp,25.dp))
+            setOnClickListener {showOptions()}
+        }
+        header.addView(settings,LinearLayout.LayoutParams(44.dp,44.dp))
+        RetroUi.add(page,header,0,19)
 
-        // Compact brand header with a proper scan mark.
-        val header = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
+        val formatRow=LinearLayout(this).apply {
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+            background=RetroUi.background(RetroUi.cream,13.dp.toFloat())
+            setPadding(13.dp,5.dp,7.dp,5.dp)
         }
-        val brandIcon = RetroUi.text(this, "⌗", 27f, true, RetroUi.cream).apply {
-            gravity = Gravity.CENTER
-            background = RetroUi.background(RetroUi.green, 12.dp.toFloat(), RetroUi.green, 0)
+        val formatInfo=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
+        RetroUi.add(formatInfo,RetroUi.text(this,"FORMAT AKTIF",10f,true,RetroUi.brown))
+        formatRow.addView(formatInfo,LinearLayout.LayoutParams(-2,-2).apply {rightMargin=8.dp})
+        mode=Spinner(this).apply {
+            adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,
+                listOf("A5 · 20 Soal · A–D","A5 · 30 Soal · A–E","A4 · 50 Soal · A–E"))
+            setSelection(selectedFormatIndex);minimumHeight=43.dp
         }
-        header.addView(brandIcon, LinearLayout.LayoutParams(44.dp, 44.dp).apply { rightMargin = 11.dp })
-        val identity = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        RetroUi.add(identity, RetroUi.text(this, "PakKom LJK", 21f, true, RetroUi.green))
-        RetroUi.add(identity, RetroUi.text(this, "SMART SCANNER  ·  1.6.6", 10f, true, RetroUi.brown), 2)
-        header.addView(identity, LinearLayout.LayoutParams(0, -2, 1f))
-        val settings = RetroUi.text(this, "⚙", 23f, true, RetroUi.green).apply {
-            gravity = Gravity.CENTER
-            contentDescription = "Pengaturan dan bantuan"
-            setOnClickListener { showOptions() }
-        }
-        header.addView(settings, LinearLayout.LayoutParams(44.dp, 44.dp))
-        RetroUi.add(page, header, 0, 23)
+        formatRow.addView(mode,LinearLayout.LayoutParams(0,-2,1f))
+        RetroUi.add(page,formatRow,0,14)
 
-        // One-row format selector. Keep original Spinner for the existing OMR workflow.
-        val formatRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            background = RetroUi.background(RetroUi.cream, 13.dp.toFloat())
-            setPadding(14.dp, 8.dp, 9.dp, 8.dp)
+        val hero=RetroUi.panel(this,RetroUi.greenLight).apply {setPadding(15.dp,14.dp,15.dp,14.dp)}
+        val heading=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
+        val scanBox=LinearLayout(this).apply {
+            gravity=Gravity.CENTER;background=RetroUi.background(RetroUi.cream,12.dp.toFloat(),RetroUi.cream,0)
+            addView(ScannerIconView(this@MainActivity,ScannerIconView.Kind.SCAN,RetroUi.green),LinearLayout.LayoutParams(31.dp,31.dp))
         }
-        val formatInfo = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        RetroUi.add(formatInfo, RetroUi.text(this, "FORMAT AKTIF", 10f, true, RetroUi.brown))
-        formatRow.addView(formatInfo, LinearLayout.LayoutParams(0, -2, 0.38f))
-        mode = Spinner(this).apply {
-            adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item,
-                listOf("A5 · 20 Soal · A–D", "A5 · 30 Soal · A–E", "A4 · 50 Soal · A–E"))
-            setSelection(selectedFormatIndex)
-            minimumHeight = 42.dp
+        heading.addView(scanBox,LinearLayout.LayoutParams(53.dp,53.dp).apply {rightMargin=12.dp})
+        val desc=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
+        RetroUi.add(desc,RetroUi.text(this,"Siap memindai",19f,true,RetroUi.green))
+        RetroUi.add(desc,RetroUi.text(this,"Arahkan kamera ke seluruh lembar jawaban.",12f,false,RetroUi.brown),3)
+        heading.addView(desc,LinearLayout.LayoutParams(0,-2,1f))
+        RetroUi.add(hero,heading,0,12)
+        val scanButton=LinearLayout(this).apply {
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER
+            background=RetroUi.background(RetroUi.orange,12.dp.toFloat(),RetroUi.orange,0)
+            minimumHeight=48.dp;isClickable=true;isFocusable=true
+            contentDescription="Mulai Scan";setOnClickListener {openLive()}
         }
-        formatRow.addView(mode, LinearLayout.LayoutParams(0, -2, 0.62f))
-        RetroUi.add(page, formatRow, 0, 16)
+        scanButton.addView(ScannerIconView(this,ScannerIconView.Kind.CAMERA,RetroUi.cream),LinearLayout.LayoutParams(22.dp,22.dp).apply {rightMargin=9.dp})
+        scanButton.addView(RetroUi.text(this,"Mulai Scan",16f,true,RetroUi.cream))
+        RetroUi.add(hero,scanButton)
+        val gallery=LinearLayout(this).apply {
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER;minimumHeight=43.dp
+            isClickable=true;isFocusable=true;contentDescription="Pilih dari Galeri";setOnClickListener {openGallery()}
+        }
+        gallery.addView(ScannerIconView(this,ScannerIconView.Kind.GALLERY,RetroUi.green),LinearLayout.LayoutParams(19.dp,19.dp).apply {rightMargin=8.dp})
+        gallery.addView(RetroUi.text(this,"Pilih dari Galeri",14f,true,RetroUi.green))
+        RetroUi.add(hero,gallery,6)
+        RetroUi.add(page,hero,0,14)
 
-        // Horizontal scanner hero; primary action only.
-        val hero = RetroUi.panel(this, RetroUi.greenLight).apply {
-            setPadding(16.dp, 16.dp, 16.dp, 16.dp)
-        }
-        val heroHeading = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-        val scanIcon = RetroUi.text(this, "⌗", 31f, true, RetroUi.green).apply {
-            gravity = Gravity.CENTER
-            background = RetroUi.background(RetroUi.cream, 12.dp.toFloat(), RetroUi.cream, 0)
-        }
-        heroHeading.addView(scanIcon, LinearLayout.LayoutParams(60.dp, 60.dp).apply { rightMargin = 13.dp })
-        val description = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        RetroUi.add(description, RetroUi.text(this, "Siap memindai", 19f, true, RetroUi.green))
-        RetroUi.add(description, RetroUi.text(this, "Posisikan empat sudut LJK dalam kamera.", 12f, false, RetroUi.brown), 3)
-        heroHeading.addView(description, LinearLayout.LayoutParams(0, -2, 1f))
-        RetroUi.add(hero, heroHeading, 0, 14)
-        RetroUi.add(hero, RetroUi.action(this, "▣   Mulai Scan   →", RetroUi.orange) { openLive() })
-        RetroUi.add(page, hero, 0, 16)
+        val guide=RetroUi.panel(this,RetroUi.cream).apply {setPadding(14.dp,13.dp,14.dp,13.dp)}
+        val guideHeader=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
+        guideHeader.addView(RetroUi.text(this,"Panduan posisi LJK",14f,true,RetroUi.green),LinearLayout.LayoutParams(0,-2,1f))
+        guideHeader.addView(RetroUi.text(this,"4 penanda sudut",10f,false,RetroUi.brown))
+        RetroUi.add(guide,guideHeader,0,9)
+        RetroUi.add(guide,LjkGuideView(this))
+        RetroUi.add(guide,RetroUi.text(this,"Pastikan keempat kotak hitam terlihat dan kertas tidak terpotong.",11f,false,RetroUi.brown).apply {gravity=Gravity.CENTER},9)
+        RetroUi.add(page,guide)
 
-        // Gallery is a secondary, lightweight action outside the hero.
-        val gallery = RetroUi.text(this, "▧   Pilih Foto dari Galeri", 15f, true, RetroUi.green).apply {
-            gravity = Gravity.CENTER
-            minHeight = 45.dp
-            isClickable = true
-            isFocusable = true
-            setOnClickListener { openGallery() }
-        }
-        RetroUi.add(page, gallery, 0, 12)
-        val rule = View(this).apply { setBackgroundColor(RetroUi.line) }
-        page.addView(rule, LinearLayout.LayoutParams(-1, 1.dp))
-        RetroUi.add(page, RetroUi.text(this, "♢  Offline  ·  Tanpa penyimpanan hasil", 11f, false, RetroUi.brown).apply {
-            gravity = Gravity.CENTER
-        }, 12)
-        if (lastReport != null) {
-            RetroUi.add(page, RetroUi.action(this, "Lihat hasil terakhir", RetroUi.cream, RetroUi.green) { showResult() }, 15)
-        }
+        // Push footer toward the bottom on tall screens, but let ScrollView work on short screens.
+        val spacer=View(this)
+        page.addView(spacer,LinearLayout.LayoutParams(-1,0,1f))
+        val footer=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER;setPadding(0,12.dp,0,0)}
+        footer.addView(ScannerIconView(this,ScannerIconView.Kind.SHIELD,RetroUi.brown),LinearLayout.LayoutParams(17.dp,17.dp).apply {rightMargin=7.dp})
+        footer.addView(RetroUi.text(this,"Offline · Tanpa penyimpanan hasil",11f,false,RetroUi.brown))
+        RetroUi.add(page,footer)
+        if(lastReport!=null) RetroUi.add(page,RetroUi.action(this,"Lihat hasil terakhir",RetroUi.cream,RetroUi.green){showResult()},10)
     }
 
     private fun showOptions() {
