@@ -1,16 +1,20 @@
-# PakKom LJK Scanner v1.5.3 — False Positive Fix
+# PakKom LJK Scanner v1.5.4 — OMR Calibration Fix (uji coba)
 
-Basis: source v1.5.2. Perubahan terfokus pada `OmrReader.kt`.
+Basis: source v1.5.3. **Tidak mengubah deteksi empat sudut, homografi, layout, atau tampilan kamera.**
 
 ## Perubahan
-- Batas minimum skor isi diperketat: jawaban 0,34; digit 0,31.
-- Selisih skor pilihan tertinggi dan kedua minimal 0,20; pilihan kedua harus kurang dari 62% skor tertinggi.
-- Jawaban samar ditandai `?` (bukan dipaksakan sebagai pilihan).
-- Peringatan untuk soal ambigu kini menyertakan skor A/B/C/D agar penyebab dapat ditelusuri.
-- Algoritma registrasi dan koreksi perspektif tidak diubah.
+- Pisahkan fungsi `selectDigit()` dan `selectAnswer()`.
+- Kembalikan aturan pemilihan kode peserta tepat seperti v1.5.2, agar pengetatan jawaban tidak lagi memengaruhi angka.
+- Jawaban: skor di bawah 0,30 dianggap kosong (`-`), 0,30–0,40 dianggap tidak pasti (`?`), di atas 0,40 harus lolos uji jarak skor dengan pilihan lain.
+- Diagnostik skor jawaban tidak pasti tetap ditampilkan.
 
-## Penting
-Ini merupakan *hotfix konservatif*, bukan jaminan pembacaan akurat. Ambang ini dapat meningkatkan jumlah `?` pada arsiran tipis. Jangan gunakan untuk penilaian nyata sebelum menguji sejumlah lembar dengan kunci hasil manual. Jika nomor 4/6 yang kosong masih terbaca A, kirim skor diagnostik pada bagian PERIKSA MANUAL agar dapat dilakukan kalibrasi berdasarkan data.
+**Penting:** batas jawaban masih hipotesis, bukan hasil kalibrasi statistik. Tidak dijamin memperbaiki nomor 4 dan 6; dapat membuat arsiran tipis menjadi `?` atau `-`. Periksa ulang semua jawaban yang diarsir. Jangan gunakan untuk penilaian resmi sampai lolos pengujian pada foto cetak nyata.
 
-## Instalasi
-Ekstrak ZIP di akar repository GitHub dan commit. Build melalui GitHub Actions.
+## Uji regresi wajib
+1. Scan lembar yang sama dengan v1.5.2 dan v1.5.3. Pastikan kode peserta kembali terbaca.
+2. Pastikan nomor 4 dan 6 kosong (`-`), bukan `A` atau `?`.
+3. Pastikan nomor 1, 3, 5, 11, 12, 14, 15 tetap sesuai arsiran.
+4. Uji beberapa foto terang, berbayang, dan sedikit miring.
+5. Jika masih gagal, gunakan diagnostik skor dan foto asli untuk kalibrasi berbasis data, bukan terus menaikkan threshold.
+
+Unggah isi ZIP ke akar repository GitHub dan build dengan GitHub Actions.
