@@ -1,13 +1,14 @@
-# PakKom LJK Scanner v1.4.0 — Perspective Safety
+# PakKom LJK Scanner v1.5 — Stability
 
-Hotfix untuk mencegah hasil OMR palsu akibat deteksi empat penanda yang salah.
+Versi konservatif dari v1.4 yang dilaporkan berhasil pada uji kertas. **Mesin OMR dan validasi perspektif v1.4 tidak diubah.**
 
-- Memvalidasi rasio fisik antarpenanda sesuai format PDF.
-- Memeriksa konsistensi ukuran penanda, bentuk, area dan distorsi perspektif.
-- Memeriksa ulang keempat penanda setelah gambar diluruskan.
-- Jika validasi gagal, proses pembacaan **dihentikan** (tidak mengeluarkan jawaban palsu).
-- Tidak menambah penyimpanan atau analisis.
+Perubahan: label versi, petunjuk uji kemiringan 0°/10°/20°, tombol bersihkan hasil/scan ulang, dan status bahwa perspektif tervalidasi jika pembacaan berhasil. Tidak ada database, nilai, analisis, atau penyimpanan.
 
-**Penting:** Versi ini mengutamakan keselamatan pembacaan; beberapa foto yang kurang baik mungkin ditolak. Belum ada uji akurasi dengan foto asli dan belum diverifikasi build Android. Gunakan foto seluruh kertas yang lurus, tidak terpotong, dengan empat kotak hitam terlihat.
+## Uji penerimaan
+1. Cetak PDF A5 20 soal A–D pada skala 100%.
+2. Isi kode peserta dan jawaban yang diketahui; foto lurus 0°, lalu 10° dan 20° dengan semua penanda terlihat.
+3. Cocokkan kode, setiap jawaban, dan jawaban kosong. Bandingkan kamera dan galeri.
+4. Jika salah satu foto gagal, jangan gunakan hasilnya untuk penilaian. Kirim foto dan tampilan overlay untuk kalibrasi.
 
-Unggah seluruh isi folder ini ke root repository GitHub, kemudian jalankan workflow Build Android APK.
+## GitHub
+Ekstrak ZIP, unggah **isi** folder ke root repository (termasuk `.github`), commit, jalankan workflow Build Android APK. Build dan akurasi belum diuji di perangkat dalam lingkungan ini.
