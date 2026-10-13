@@ -11,14 +11,15 @@ import android.widget.TextView
 
 /** Reusable, lightweight retro UI: no new dependencies or image assets. */
 object RetroUi {
-    val paper = Color.rgb(247, 230, 193)
-    val cream = Color.rgb(255, 245, 218)
-    val green = Color.rgb(21, 78, 68)
-    val greenLight = Color.rgb(219, 233, 209)
-    val ink = Color.rgb(39, 40, 31)
-    val brown = Color.rgb(131, 82, 42)
-    val orange = Color.rgb(219, 100, 35)
-    val line = Color.rgb(163, 125, 78)
+    // Opsi 3: Retro Modern — teal, burnt orange, ivory; clean and uncluttered.
+    val paper = Color.rgb(246, 247, 242)
+    val cream = Color.rgb(255, 255, 251)
+    val green = Color.rgb(0, 91, 88)
+    val greenLight = Color.rgb(225, 243, 236)
+    val ink = Color.rgb(31, 51, 51)
+    val brown = Color.rgb(94, 110, 107)
+    val orange = Color.rgb(226, 103, 47)
+    val line = Color.rgb(222, 231, 225)
 
     fun Context.dp(value: Int): Int = (value * resources.displayMetrics.density + .5f).toInt()
 
@@ -31,8 +32,8 @@ object RetroUi {
 
     fun panel(context: Context, color: Int = cream): LinearLayout = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
-        background = background(color, context.dp(16).toFloat(), line, context.dp(1))
-        setPadding(context.dp(16), context.dp(16), context.dp(16), context.dp(16))
+        background = background(color, context.dp(22).toFloat(), line, context.dp(1))
+        setPadding(context.dp(18), context.dp(18), context.dp(18), context.dp(18))
     }
 
     fun text(context: Context, value: String, size: Float = 16f, bold: Boolean = false, color: Int = ink): TextView =
@@ -48,7 +49,7 @@ object RetroUi {
             gravity = Gravity.CENTER
             minHeight = context.dp(56)
             setPadding(context.dp(10), context.dp(12), context.dp(10), context.dp(12))
-            background = background(color, context.dp(13).toFloat(), ink, context.dp(2))
+            background = background(color, context.dp(16).toFloat(), if (color == cream) line else color, context.dp(1))
             isClickable = true
             isFocusable = true
             setOnClickListener { click() }
