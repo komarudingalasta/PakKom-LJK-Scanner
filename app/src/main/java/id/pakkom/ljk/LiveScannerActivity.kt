@@ -40,6 +40,9 @@ class LiveScannerActivity : ComponentActivity() {
     private var lastCheck = 0L
     private var lastSignature = ""
     private var stableFrames = 0
+    private val requiredStableFrames = 3
+    private var lastAutoCaptureAt = 0L
+    private val captureCooldownMs = 3500L
     private var taking = false
     private lateinit var layout: JSONObject
     private val requestPermission = 301
@@ -60,7 +63,7 @@ class LiveScannerActivity : ComponentActivity() {
         message = TextView(this).apply {text="Arahkan kamera ke seluruh LJK; empat kotak hitam harus terlihat.";setTextColor(Color.WHITE);textSize=14f;setPadding(18,12,18,12)}
         root.addView(message)
         val buttons=LinearLayout(this)
-        val autoButton=Button(this).apply { text="AUTO: MATI";setOnClickListener { auto=!auto; text=if(auto)"AUTO: AKTIF" else "AUTO: MATI";stableFrames=0;lastSignature="" } }
+        val autoButton=Button(this).apply { text="AUTO: MATI";setOnClickListener { auto=!auto; text=if(auto)"AUTO: AKTIF" else "AUTO: MATI";stableFrames=0;lastSignature="";message.text=if(auto)"AUTO aktif: tahan kertas hingga hasil stabil." else "AUTO mati: tekan FOTO untuk memindai." } }
         buttons.addView(autoButton,LinearLayout.LayoutParams(0,-2,1f))
         buttons.addView(Button(this).apply {text="FOTO";setOnClickListener { takePhoto() }},LinearLayout.LayoutParams(0,-2,1f))
         buttons.addView(Button(this).apply {text="KEMBALI";setOnClickListener {finish()}},LinearLayout.LayoutParams(0,-2,1f))
@@ -113,19 +116,23 @@ class LiveScannerActivity : ComponentActivity() {
                 val maxSide=1000
                 if(maxOf(bitmap.width,bitmap.height)>maxSide){val f=maxSide.toFloat()/maxOf(bitmap.width,bitmap.height);bitmap=Bitmap.createScaledBitmap(bitmap,(bitmap.width*f).toInt(),(bitmap.height*f).toInt(),true)}
                 val result=OmrReader(layout).read(bitmap)
-                val valid=result.qualityNotes.isEmpty() && result.code.none { it=='?' } && result.answers.count{it=="?"}==0
+                val valid=result.qualityNotes.isEmpty() && result.code.none { it=='?' } && result.answers.none { it=="?" } && result.answers.any { it!="-" }
                 val signature=result.code+"|"+result.answers.joinToString("")
                 if(valid){stableFrames=if(signature==lastSignature)stableFrames+1 else 1;lastSignature=signature}
                 else {stableFrames=0;lastSignature=""}
-                runOnUiThread {if(!taking)message.text=if(valid)"LJK terdeteksi · stabil $stableFrames/2" else "LJK terlihat, tetapi hasil/kualitas belum cukup jelas. Atur cahaya atau tekan FOTO."}
-                if(valid && stableFrames>=2)runOnUiThread {takePhoto()}
+                runOnUiThread {if(!taking)message.text=if(valid)"LJK terdeteksi · stabil $stableFrames/$requiredStableFrames" else "LJK terlihat, tetapi hasil/kualitas belum cukup jelas. Atur cahaya atau tekan FOTO."}
+                if(valid && stableFrames>=requiredStableFrames && now-lastAutoCaptureAt>=captureCooldownMs){
+                    lastAutoCaptureAt=now
+                    stableFrames=0
+                    runOnUiThread { if(auto && !taking)takePhoto() }
+                }
             }catch(e:Exception){stableFrames=0;lastSignature="";runOnUiThread {if(!taking)message.text="Cari keempat penanda sudut, lalu tahan kamera stabil..."}}
             finally {busy.set(false)}
         }finally{frame.close()}
     }
     private fun takePhoto(){
         if(taking || !::capture.isInitialized)return
-        taking=true;auto=false;message.text="Mengambil foto resolusi penuh..."
+        taking=true;auto=false;stableFrames=0;lastSignature="";message.text="Mengambil foto resolusi penuh..."
         val file=File(cacheDir,"live-ljk-${System.currentTimeMillis()}.jpg")
         capture.takePicture(ImageCapture.OutputFileOptions.Builder(file).build(),ContextCompat.getMainExecutor(this),object:ImageCapture.OnImageSavedCallback{
             override fun onImageSaved(output:ImageCapture.OutputFileResults){
