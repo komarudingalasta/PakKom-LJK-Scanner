@@ -1,17 +1,16 @@
-# PakKom LJK Scanner v1.6.8 — Smart Scan Experience
+# PakKom LJK Scanner v1.6.9 — Smart Result & Quick Scan
 
-Based on v1.6.7, retaining its home UI and OMR answer-decoding rules.
+Pembaruan dari v1.6.8. Fokus hanya pada tampilan hasil:
+- Ringkasan jumlah jawaban terisi, kosong, dan tidak jelas.
+- Peringatan jelas ketika kode peserta, jawaban, atau pemeriksaan kualitas memerlukan verifikasi manual.
+- Nomor dengan tanda `?` berwarna oranye.
+- Tombol **Scan Berikutnya** di atas pratinjau foto.
+- Foto dan overlay dapat dibuka atau disembunyikan, sehingga daftar hasil lebih ringkas.
+- Tampilan beranda, CameraX, mesin OMR, dan JSON koordinat tidak diubah.
 
-## Changes
-- Live Camera AUTO checks four real fiducial marker positions in consecutive preview frames.
-- Captures only after three successive frames with marker movement below 1.2% of image diagonal.
-- Simple image-contrast/blur warning; AUTO remains OFF by default.
-- Full-resolution still photo is processed by the existing OMR engine, which validates perspective.
-- Manual FOTO remains available regardless of AUTO validation.
-- Auto capture disabled while photo is being saved; original CameraX pipeline retained.
+## Instalasi
+Ekstrak seluruh ZIP ke root repository GitHub, commit, dan lihat hasil workflow GitHub Actions.
 
-## Limitations
-- Preview image sharpness threshold is heuristic and may require device-specific tuning.
-- Registration-marker detection in preview is CPU-intensive; frames are sampled every 1.7 seconds.
-- This version does not add batch storage or change answer recognition.
-- Test on real printed A5 and A4 forms before relying on automatic capture.
+## Pengujian
+Uji kode peserta 137, jawaban terisi/kosong, hasil `?`, foto overlay, serta Scan Berikutnya.
+Build APK dan pengujian perangkat belum dijalankan pada lingkungan pembuat source.
