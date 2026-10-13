@@ -37,15 +37,24 @@ class OmrReader(private val layout: JSONObject) {
         }
         val qualityNotes=assessPhotoQuality(normalized)
         val warnings=mutableListOf<String>()
-        val digits=layout.getJSONObject("participant_code")
-        val code=StringBuilder()
-        for (d in 1..3) {
-            val row=digits.getJSONObject(d.toString())
-            val scores=(0..9).map { i -> fillScore(normalized,coords(row.getJSONArray(i.toString())),1.75) }
+        val identity=layout.getJSONObject("identity_bubbles")
+        val fieldNames=listOf("grade_tens","grade_units","room","attendance_tens","attendance_units")
+        val fieldChoices=listOf("01","0123456789","ABCDEFGHIJKL","0123","0123456789")
+        val selectedFields=fieldNames.mapIndexed { index, field ->
+            val row=identity.getJSONObject(field)
+            val choices=fieldChoices[index]
+            val scores=choices.map { fillScore(normalized,coords(row.getJSONArray(it.toString())),1.30) }
             val selected=selectDigit(scores)
-            code.append(if(selected<0) '?' else ('0'+selected))
-            if(selected<0)warnings.add("Kode peserta digit $d kosong, ganda, atau tidak jelas")
+            if(selected<0) warnings.add("Identitas $field kosong, ganda, atau tidak jelas")
+            if(selected<0) '?' else choices[selected]
         }
+        val gradeText=""+selectedFields[0]+selectedFields[1]
+        val attendanceText=""+selectedFields[3]+selectedFields[4]
+        val grade=gradeText.toIntOrNull()
+        val attendance=attendanceText.toIntOrNull()
+        if(grade!=null && grade !in 1..12) warnings.add("Tingkat kelas harus 01–12")
+        if(attendance!=null && attendance !in 1..36) warnings.add("Nomor absen harus 01–36")
+        val code="${gradeText}${selectedFields[2]}-$attendanceText"
         val answerJson=layout.getJSONObject("answers")
         val options=layout.getString("options")
         val answers=(1..layout.getInt("question_count")).map { n ->
@@ -59,7 +68,10 @@ class OmrReader(private val layout: JSONObject) {
         val debug=android.graphics.Canvas(overlay)
         val paint=android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply { style=android.graphics.Paint.Style.STROKE;strokeWidth=1.6f }
         fun ring(xy: Pair<Double,Double>,selected:Boolean){ paint.color=if(selected) Color.rgb(0,145,65) else Color.rgb(115,155,200);debug.drawCircle((xy.first*scale).toFloat(),(xy.second*scale).toFloat(),(2.0*scale).toFloat(),paint) }
-        for(d in 1..3){ val row=digits.getJSONObject(d.toString());for(i in 0..9)ring(coords(row.getJSONArray(i.toString())),code[d-1]==('0'+i)) }
+        fieldNames.forEachIndexed { index, field ->
+            val row=identity.getJSONObject(field)
+            for (choice in fieldChoices[index]) ring(coords(row.getJSONArray(choice.toString())), selectedFields[index]==choice)
+        }
         for(n in 1..layout.getInt("question_count")){ val row=answerJson.getJSONObject(n.toString());for(c in options)ring(coords(row.getJSONArray(c.toString())),answers[n-1]==c.toString()) }
         return Result(code.toString(),answers,warnings,normalized,overlay,qualityNotes)
     }
