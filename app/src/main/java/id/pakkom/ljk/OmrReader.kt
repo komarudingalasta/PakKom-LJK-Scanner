@@ -8,7 +8,7 @@ import kotlin.math.*
 
 /** Prototype: printed registration marks must be visible; all coordinates in millimetres. */
 class OmrReader(private val layout: JSONObject) {
-    data class Result(val code: String, val answers: List<String>, val warnings: List<String>, val image: Bitmap, val overlay: Bitmap)
+    data class Result(val code: String, val answers: List<String>, val warnings: List<String>, val image: Bitmap, val overlay: Bitmap, val qualityNotes: List<String>)
     private val widthMm = layout.getJSONArray("paper_mm").getDouble(0)
     private val heightMm = layout.getJSONArray("paper_mm").getDouble(1)
     private val scale = 5.0 // px/mm in normalized bitmap
@@ -35,6 +35,7 @@ class OmrReader(private val layout: JSONObject) {
         if (!validateNormalizedMarks(normalized)) {
             throw IllegalArgumentException("Posisi empat penanda tidak valid setelah pelurusan. Pastikan seluruh kertas terlihat, tidak terpotong, dan pilih format yang benar.")
         }
+        val qualityNotes=assessPhotoQuality(normalized)
         val warnings=mutableListOf<String>()
         val digits=layout.getJSONObject("participant_code")
         val code=StringBuilder()
@@ -60,7 +61,7 @@ class OmrReader(private val layout: JSONObject) {
         fun ring(xy: Pair<Double,Double>,selected:Boolean){ paint.color=if(selected) Color.rgb(0,145,65) else Color.rgb(115,155,200);debug.drawCircle((xy.first*scale).toFloat(),(xy.second*scale).toFloat(),(2.0*scale).toFloat(),paint) }
         for(d in 1..3){ val row=digits.getJSONObject(d.toString());for(i in 0..9)ring(coords(row.getJSONArray(i.toString())),code[d-1]==('0'+i)) }
         for(n in 1..layout.getInt("question_count")){ val row=answerJson.getJSONObject(n.toString());for(c in options)ring(coords(row.getJSONArray(c.toString())),answers[n-1]==c.toString()) }
-        return Result(code.toString(),answers,warnings,normalized,overlay)
+        return Result(code.toString(),answers,warnings,normalized,overlay,qualityNotes)
     }
 
     /**
@@ -121,6 +122,35 @@ class OmrReader(private val layout: JSONObject) {
         if(second>=0.24 && (top-second<0.15 || second>=top*0.72))return -2
         return best
     }
+    /** Advisory photo-quality checks. These never override decoded answers or reject a sheet. */
+    private fun assessPhotoQuality(image: Bitmap): List<String> {
+        val notes = mutableListOf<String>()
+        // Sample paper strips near margins, away from corner marks and answer bubbles.
+        val samples = mutableListOf<Double>()
+        for (gy in 2..8) for (gx in 2..8) {
+            val x = (image.width * gx / 10.0).roundToInt()
+            val y = (image.height * gy / 10.0).roundToInt()
+            val values = mutableListOf<Int>()
+            for (dy in -7..7 step 3) for (dx in -7..7 step 3) {
+                val px = x + dx; val py = y + dy
+                if (px in 0 until image.width && py in 0 until image.height)
+                    values.add(gray(image.getPixel(px, py)))
+            }
+            if (values.isNotEmpty()) {
+                values.sort()
+                // Bright percentile reduces interference from printed text and circles.
+                samples.add(values[(values.size * 0.85).toInt().coerceAtMost(values.lastIndex)].toDouble())
+            }
+        }
+        if (samples.isEmpty()) return listOf("Kualitas pencahayaan tidak dapat diperiksa")
+        samples.sort()
+        val low = samples[(samples.size * 0.15).toInt()]
+        val high = samples[(samples.size * 0.85).toInt()]
+        if (low < 115.0) notes.add("Area foto cukup gelap; gunakan cahaya lebih merata")
+        if (high - low > 75.0) notes.add("Pencahayaan tidak merata / kemungkinan bayangan; coba foto ulang tanpa bayangan")
+        return notes
+    }
+
     /** Registration markers must remain solid and in the expected places after warping. */
     private fun validateNormalizedMarks(image: Bitmap): Boolean {
         val reg=layout.getJSONArray("registration_marks_mm")
