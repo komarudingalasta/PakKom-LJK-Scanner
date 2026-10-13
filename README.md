@@ -1,15 +1,16 @@
-# PakKom LJK Scanner v1.5.2 — Quality Check
+# PakKom LJK Scanner v1.5.3 — False Positive Fix
 
-Pembaruan konservatif dari v1.5.1. **Algoritma deteksi penanda, perspektif, dan penilaian bulatan tidak diubah.**
+Basis: source v1.5.2. Perubahan terfokus pada `OmrReader.kt`.
 
-## Yang baru
-- Pemeriksaan indikatif pencahayaan setelah gambar diluruskan.
-- Peringatan jika terdapat area gelap atau kontras terang-gelap yang besar (kemungkinan bayangan).
-- Informasi kualitas foto tampil bersama hasil scan; peringatan **tidak** mengubah jawaban atau menggagalkan scan.
-- Versi aplikasi menjadi 1.5.2 (versionCode 152).
+## Perubahan
+- Batas minimum skor isi diperketat: jawaban 0,34; digit 0,31.
+- Selisih skor pilihan tertinggi dan kedua minimal 0,20; pilihan kedua harus kurang dari 62% skor tertinggi.
+- Jawaban samar ditandai `?` (bukan dipaksakan sebagai pilihan).
+- Peringatan untuk soal ambigu kini menyertakan skor A/B/C/D agar penyebab dapat ditelusuri.
+- Algoritma registrasi dan koreksi perspektif tidak diubah.
 
-## Batasan
-Pemeriksaan kualitas hanya heuristik; tidak membuktikan foto tajam atau hasil OMR akurat. Belum ada pemindaian kamera langsung otomatis. APK belum dibangun atau diuji pada perangkat di lingkungan ini.
+## Penting
+Ini merupakan *hotfix konservatif*, bukan jaminan pembacaan akurat. Ambang ini dapat meningkatkan jumlah `?` pada arsiran tipis. Jangan gunakan untuk penilaian nyata sebelum menguji sejumlah lembar dengan kunci hasil manual. Jika nomor 4/6 yang kosong masih terbaca A, kirim skor diagnostik pada bagian PERIKSA MANUAL agar dapat dilakukan kalibrasi berdasarkan data.
 
-## Instal
-Ekstrak isi ZIP ke root repository GitHub, commit, jalankan workflow Actions, unduh APK dari Artifacts. Uji kode 213 dan jawaban di kertas yang sama pada cahaya merata dan bayangan.
+## Instalasi
+Ekstrak ZIP di akar repository GitHub dan commit. Build melalui GitHub Actions.
