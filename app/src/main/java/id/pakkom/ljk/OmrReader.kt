@@ -42,7 +42,7 @@ class OmrReader(private val layout: JSONObject) {
         for (d in 1..3) {
             val row=digits.getJSONObject(d.toString())
             val scores=(0..9).map { i -> fillScore(normalized,coords(row.getJSONArray(i.toString())),1.75) }
-            val selected=select(scores, true)
+            val selected=selectDigit(scores)
             code.append(if(selected<0) '?' else ('0'+selected))
             if(selected<0)warnings.add("Kode peserta digit $d kosong, ganda, atau tidak jelas")
         }
@@ -51,7 +51,7 @@ class OmrReader(private val layout: JSONObject) {
         val answers=(1..layout.getInt("question_count")).map { n ->
             val row=answerJson.getJSONObject(n.toString())
             val scores=options.map { fillScore(normalized,coords(row.getJSONArray(it.toString())),2.10) }
-            val choice=select(scores, false)
+            val choice=selectAnswer(scores)
             if(choice==-2) { warnings.add("Soal $n: tanda ganda atau tidak jelas; skor " + options.mapIndexed { i, c -> "$c=${"%.2f".format(java.util.Locale.US, scores[i])}" }.joinToString(" ")); "?" }
             else if(choice==-1) "-" else options[choice].toString()
         }
@@ -111,27 +111,40 @@ class OmrReader(private val layout: JSONObject) {
         return scores.sortedDescending().take(3).average().takeIf{!it.isNaN()}?:0.0
     }
 
-    /**
-     * Conservative decision: blank paper can be shaded or have printed rim ink.
-     * Require both absolute fill strength AND clear separation from the other
-     * choices. A weak candidate is uncertain, never automatically accepted.
-     * The thresholds are provisional until validated against labeled scans.
+    /** Digit detection is independent of answer thresholds. This restores the
+     * v1.5.2 decision rule, which previously read the participant code correctly.
+     * A missing/uncertain digit is still shown as ? by the caller.
      */
-    private fun select(scores: List<Double>, isDigit: Boolean): Int {
+    private fun selectDigit(scores: List<Double>): Int {
         if (scores.isEmpty()) return -2
         val ranked = scores.indices.sortedByDescending { scores[it] }
         val best = ranked[0]
         val top = scores[best]
         val second = if (ranked.size > 1) scores[ranked[1]] else 0.0
-        // A low absolute response with little separation is genuinely blank.
-        if (top < 0.17) return -1
-        // Require a visibly filled core, not just an unusually dark outline.
-        val minimum = if (isDigit) 0.31 else 0.34
-        if (top < minimum) return -2
-        // Guard against false positives from local shadow gradients.
-        if (top - second < 0.20 || second >= top * 0.62) return -2
-        // A second clearly filled bubble is always ambiguous.
-        if (second >= minimum) return -2
+        if (top < 0.14) return -1
+        if (top < 0.24) return -2
+        if (second >= 0.24 && (top - second < 0.15 || second >= top * 0.72)) return -2
+        return best
+    }
+
+    /** Answers use a distinct, conservative classification rule.
+     * A weak isolated peak may be printed-rim contamination; it is NOT a mark.
+     * Thresholds are provisional and should be calibrated using labeled paper
+     * scans. Do not use for grading until validated.
+     */
+    private fun selectAnswer(scores: List<Double>): Int {
+        if (scores.isEmpty()) return -2
+        val ranked = scores.indices.sortedByDescending { scores[it] }
+        val best = ranked[0]
+        val top = scores[best]
+        val second = if (ranked.size > 1) scores[ranked[1]] else 0.0
+        // Suppress isolated faint print/rim noise rather than marking it uncertain.
+        if (top < 0.30) return -1
+        // Gray zone: do not force a choice or a blank.
+        if (top < 0.40) return -2
+        // More than one strongly filled bubble is ambiguous.
+        if (second >= 0.35) return -2
+        if (top - second < 0.16 || second >= top * 0.75) return -2
         return best
     }
     /** Advisory photo-quality checks. These never override decoded answers or reject a sheet. */
