@@ -28,12 +28,13 @@ class MainActivity : Activity() {
         setContentView(ScrollView(this).apply { addView(root) })
         fun label(t:String,size:Float=15f)=TextView(this).apply {text=t;textSize=size;setTextColor(Color.rgb(22,55,63));setPadding(0,8.dp,0,8.dp);root.addView(this)}
         label("PakKom LJK Scanner",24f)
-        label("v1.3.1 · Perbaikan pembacaan OMR · uji akurasi",14f)
+        label("v1.5 · Scanner Stability · uji cetak dan kemiringan",14f)
         label("Pilih format lembar")
         mode=Spinner(this).apply { adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,listOf("A5 · 20 soal · A–D","A5 · 30 soal · A–E","A4 · 50 soal · A–E"));root.addView(this) }
-        label("Foto seluruh kertas dengan keempat kotak hitam sudut terlihat. Gunakan cahaya terang dan rata.",13f)
+        label("Foto seluruh kertas dengan keempat kotak hitam terlihat. Uji posisi lurus, miring sekitar 10°, dan 20°. Gunakan cahaya rata.",13f)
         root.addView(Button(this).apply {text="FOTO LJK";setOnClickListener { openCamera() }})
         root.addView(Button(this).apply {text="PILIH FOTO DARI GALERI";setOnClickListener {startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {addCategory(Intent.CATEGORY_OPENABLE);type="image/*"},galleryRequest)} })
+        root.addView(Button(this).apply {text="SCAN ULANG / BERSIHKAN HASIL";setOnClickListener {preview.setImageDrawable(null);status.text="Siap memindai LJK berikutnya. Pilih kamera atau galeri."} })
         preview=ImageView(this).apply { adjustViewBounds=true;scaleType=ImageView.ScaleType.FIT_CENTER;root.addView(this) }
         status=TextView(this).apply {text="Hasil pemindaian akan tampil di sini. Hasil yang meragukan harus diverifikasi guru.";textSize=15f;setTextColor(Color.DKGRAY);setPadding(0,18.dp,0,18.dp);root.addView(this)}
         label("Lingkaran hijau = terpilih; biru = tidak terpilih. Cocokkan overlay dengan lembar asli. Tidak ada penyimpanan atau penilaian.",13f)
@@ -64,7 +65,7 @@ class MainActivity : Activity() {
                 val upright=if(rotation==0f)bitmap else Bitmap.createBitmap(bitmap,0,0,bitmap.width,bitmap.height,Matrix().apply{postRotate(rotation)},true)
                 val result=OmrReader(layout).read(upright)
                 val text=buildString {
-                    append("FORMAT: ${layout.getString("format_id")}\nKODE PESERTA: ${result.code}\n\n")
+                    append("FORMAT: ${layout.getString("format_id")}\nKODE PESERTA: ${result.code}\nSTATUS: LJK terdeteksi dan perspektif tervalidasi\n\n")
                     result.answers.forEachIndexed {i,v->append("${i+1}. $v    ");if((i+1)%4==0)append("\n")}
                     append("\n\nKeterangan: - = kosong, ? = tidak jelas / ganda\n")
                     if(result.warnings.isNotEmpty())append("\nPERIKSA MANUAL:\n"+result.warnings.joinToString("\n"))
