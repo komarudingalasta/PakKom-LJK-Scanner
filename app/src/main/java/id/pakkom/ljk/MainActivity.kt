@@ -1,6 +1,6 @@
 package id.pakkom.ljk
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
@@ -15,12 +15,13 @@ import androidx.core.content.FileProvider
 import org.json.JSONObject
 import java.io.File
 
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
     private lateinit var mode: Spinner
     private lateinit var status: TextView
     private lateinit var preview: ImageView
     private var photoUri: Uri? = null
     private val cameraRequest=101
+    private val liveRequest=103
     private val galleryRequest=102
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,17 +29,19 @@ class MainActivity : Activity() {
         setContentView(ScrollView(this).apply { addView(root) })
         fun label(t:String,size:Float=15f)=TextView(this).apply {text=t;textSize=size;setTextColor(Color.rgb(22,55,63));setPadding(0,8.dp,0,8.dp);root.addView(this)}
         label("PakKom LJK Scanner",24f)
-        label("v1.5.2 · Quality Check · pemeriksaan pencahayaan",14f)
+        label("v1.6.0 · Live Camera · Auto Capture (eksperimental)",14f)
         label("Pilih format lembar")
         mode=Spinner(this).apply { adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,listOf("A5 · 20 soal · A–D","A5 · 30 soal · A–E","A4 · 50 soal · A–E"));root.addView(this) }
         label("Foto seluruh kertas dengan keempat kotak hitam terlihat. Uji posisi lurus, miring sekitar 10°, dan 20°. Gunakan cahaya rata.",13f)
-        root.addView(Button(this).apply {text="FOTO LJK";setOnClickListener { openCamera() }})
+        root.addView(Button(this).apply {text="BUKA LIVE SCANNER";setOnClickListener { startActivityForResult(Intent(this@MainActivity, LiveScannerActivity::class.java).putExtra("layout",selectedLayout()),liveRequest) }})
+        root.addView(Button(this).apply {text="FOTO LJK (KAMERA BAWAAN)";setOnClickListener { openCamera() }})
         root.addView(Button(this).apply {text="PILIH FOTO DARI GALERI";setOnClickListener {startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {addCategory(Intent.CATEGORY_OPENABLE);type="image/*"},galleryRequest)} })
         root.addView(Button(this).apply {text="SCAN ULANG / BERSIHKAN HASIL";setOnClickListener {preview.setImageDrawable(null);status.text="Siap memindai LJK berikutnya. Pilih kamera atau galeri."} })
         preview=ImageView(this).apply { adjustViewBounds=true;scaleType=ImageView.ScaleType.FIT_CENTER;root.addView(this) }
         status=TextView(this).apply {text="Hasil pemindaian akan tampil di sini. Hasil yang meragukan harus diverifikasi guru.";textSize=15f;setTextColor(Color.DKGRAY);setPadding(0,18.dp,0,18.dp);root.addView(this)}
         label("Lingkaran hijau = terpilih; biru = tidak terpilih. Cocokkan overlay dengan lembar asli. Tidak ada penyimpanan atau penilaian.",13f)
     }
+    private fun selectedLayout()=when(mode.selectedItemPosition){0->"scan-A5-20.json";1->"scan-A5-30.json";else->"scan-A4-50.json"}
     private fun openCamera(){
         try {
             val file=File(cacheDir,"ljk-capture.jpg")
@@ -53,9 +56,9 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){
         super.onActivityResult(requestCode,resultCode,data)
         if(resultCode!=RESULT_OK)return
-        val uri=when(requestCode){cameraRequest->photoUri;galleryRequest->data?.data;else->null}?:return
+        val uri=when(requestCode){cameraRequest->photoUri;galleryRequest->data?.data;liveRequest->data?.data;else->null}?:return
         status.text="Menganalisis foto..."
-        val asset=when(mode.selectedItemPosition){0->"scan-A5-20.json";1->"scan-A5-30.json";else->"scan-A4-50.json"}
+        val asset=selectedLayout()
         Thread {
             try {
                 val layout=assets.open(asset).bufferedReader().use {JSONObject(it.readText())}
