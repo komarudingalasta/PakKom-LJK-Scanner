@@ -51,8 +51,8 @@ class LiveScannerActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val asset = intent.getStringExtra("layout") ?: "scan-A5-20.json"
         layout = assets.open(asset).bufferedReader().use { JSONObject(it.readText()) }
-        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(Color.BLACK) }
-        val header = TextView(this).apply { text="PakKom Live Scanner · ${this@LiveScannerActivity.layout.optString("format_id")}"; textSize=17f;setTextColor(Color.WHITE);setPadding(18,22,18,18) }
+        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(RetroUi.paper) }
+        val header = TextView(this).apply { text="‹   LIVE SCANNER   •   ${this@LiveScannerActivity.layout.optString("format_id")}"; textSize=17f;setTypeface(null, 1);setTextColor(RetroUi.cream);setBackgroundColor(RetroUi.green);setPadding(18,22,18,18);setOnClickListener { finish() } }
         root.addView(header)
         val frame = FrameLayout(this)
         view = PreviewView(this).apply { scaleType = PreviewView.ScaleType.FIT_CENTER }
@@ -60,13 +60,14 @@ class LiveScannerActivity : ComponentActivity() {
         val guide = ScanGuideView(this)
         frame.addView(guide,FrameLayout.LayoutParams(-1,-1))
         root.addView(frame,LinearLayout.LayoutParams(-1,0,1f))
-        message = TextView(this).apply {text="Arahkan kamera ke seluruh LJK; empat kotak hitam harus terlihat.";setTextColor(Color.WHITE);textSize=14f;setPadding(18,12,18,12)}
+        message = TextView(this).apply {text="Arahkan kamera ke seluruh LJK; empat kotak hitam harus terlihat.";setTextColor(RetroUi.ink);setBackgroundColor(RetroUi.cream);textSize=14f;setPadding(18,12,18,12)}
         root.addView(message)
-        val buttons=LinearLayout(this)
-        val autoButton=Button(this).apply { text="AUTO: MATI";setOnClickListener { auto=!auto; text=if(auto)"AUTO: AKTIF" else "AUTO: MATI";stableFrames=0;lastSignature="";message.text=if(auto)"AUTO aktif: tahan kertas hingga hasil stabil." else "AUTO mati: tekan FOTO untuk memindai." } }
+        val buttons=LinearLayout(this).apply { setBackgroundColor(RetroUi.paper);setPadding(8,8,8,8) }
+        val autoButton=Button(this).apply { text="AUTO OFF";setOnClickListener { auto=!auto; text=if(auto)"AUTO ON" else "AUTO OFF";stableFrames=0;lastSignature="";message.text=if(auto)"AUTO aktif: tahan kertas hingga hasil stabil." else "AUTO mati: tekan FOTO untuk memindai." } }
+        autoButton.setTextColor(RetroUi.green)
         buttons.addView(autoButton,LinearLayout.LayoutParams(0,-2,1f))
-        buttons.addView(Button(this).apply {text="FOTO";setOnClickListener { takePhoto() }},LinearLayout.LayoutParams(0,-2,1f))
-        buttons.addView(Button(this).apply {text="KEMBALI";setOnClickListener {finish()}},LinearLayout.LayoutParams(0,-2,1f))
+        buttons.addView(Button(this).apply {text="● FOTO";setTextColor(RetroUi.green);setOnClickListener { takePhoto() }},LinearLayout.LayoutParams(0,-2,1f))
+        buttons.addView(Button(this).apply {text="KEMBALI";setTextColor(RetroUi.brown);setOnClickListener {finish()}},LinearLayout.LayoutParams(0,-2,1f))
         root.addView(buttons)
         setContentView(root)
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED) startCamera()
