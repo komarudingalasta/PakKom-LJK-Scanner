@@ -8,7 +8,7 @@ import org.json.JSONObject
 import java.io.OutputStream
 import kotlin.math.roundToInt
 
-/** Generates only the three VERIFIED layouts bundled with the scanner.
+/** Generates supported layouts using their matching OMR JSON coordinates.
  * Every mark and bubble is rendered from the exact JSON read by OmrReader.
  * PDF points are 72/25.4 per mm; print at 100% / actual size.
  */
