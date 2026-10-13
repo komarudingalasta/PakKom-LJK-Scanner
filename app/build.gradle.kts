@@ -9,8 +9,8 @@ android {
         applicationId = "id.pakkom.ljk"
         minSdk = 28
         targetSdk = 35
-        versionCode = 161
-        versionName = "1.6.1"
+        versionCode = 162
+        versionName = "1.6.2"
     }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
