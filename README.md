@@ -1,14 +1,17 @@
-# PakKom LJK Scanner v1.6.7 — Balanced Scanner UI
+# PakKom LJK Scanner v1.6.8 — Smart Scan Experience
 
-Berbasis source v1.6.6. Perubahan hanya pada **beranda** dan versi aplikasi.
+Based on v1.6.7, retaining its home UI and OMR answer-decoding rules.
 
-- Ikon scanner, kamera, galeri, pengaturan, dan keamanan digambar dengan Canvas Android (`ScannerIconView.kt`), tidak memakai karakter Unicode atau emoji.
-- Kartu panduan LJK baru (`LjkGuideView.kt`) memperlihatkan empat penanda sudut, tanpa menyentuh mesin OMR.
-- Kartu format ringkas, kartu aksi seimbang, tombol galeri di dalam kartu, footer terdorong ke bawah jika layar tinggi.
-- `OmrReader.kt`, `LiveScannerActivity.kt`, file koordinat JSON, dan alur kamera tetap sama dengan v1.6.6.
+## Changes
+- Live Camera AUTO checks four real fiducial marker positions in consecutive preview frames.
+- Captures only after three successive frames with marker movement below 1.2% of image diagonal.
+- Simple image-contrast/blur warning; AUTO remains OFF by default.
+- Full-resolution still photo is processed by the existing OMR engine, which validates perspective.
+- Manual FOTO remains available regardless of AUTO validation.
+- Auto capture disabled while photo is being saved; original CameraX pipeline retained.
 
-## Pemasangan
-Ekstrak ZIP dan unggah seluruh isi folder ke root repository GitHub, bukan folder pembungkusnya. Commit, tunggu GitHub Actions hijau, unduh APK dari Artifacts. Pastikan header menampilkan `v1.6.7`.
-
-## Verifikasi
-Periksa beranda di HP kecil dan besar, pergantian format, tombol Scan/Galeri/Pengaturan, dan satu foto LJK cetak yang sebelumnya terbaca benar. Build Android dan uji perangkat belum dijalankan di lingkungan pembuatan source.
+## Limitations
+- Preview image sharpness threshold is heuristic and may require device-specific tuning.
+- Registration-marker detection in preview is CPU-intensive; frames are sampled every 1.7 seconds.
+- This version does not add batch storage or change answer recognition.
+- Test on real printed A5 and A4 forms before relying on automatic capture.
