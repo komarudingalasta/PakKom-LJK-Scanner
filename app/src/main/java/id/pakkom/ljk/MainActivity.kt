@@ -26,6 +26,9 @@ class MainActivity : ComponentActivity() {
     private val cameraRequest = 101
     private val liveRequest = 103
     private val galleryRequest = 102
+    private val pdfRequest = 104
+    private var pdfTitle = ""
+    private var pdfSchool = ""
     private var lastImage: Bitmap? = null
     private var lastReport: String? = null
     private var lastCode: String = ""
@@ -125,7 +128,7 @@ class MainActivity : ComponentActivity() {
         header.addView(brandBox,LinearLayout.LayoutParams(44.dp,44.dp).apply {rightMargin=10.dp})
         val identity=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
         RetroUi.add(identity,RetroUi.text(this,"PakKom LJK",21f,true,RetroUi.green))
-        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.7.0",10f,true,RetroUi.brown),2)
+        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.8.0",10f,true,RetroUi.brown),2)
         header.addView(identity,LinearLayout.LayoutParams(0,-2,1f))
         val settings=LinearLayout(this).apply {
             gravity=Gravity.CENTER;isClickable=true;isFocusable=true
@@ -136,26 +139,29 @@ class MainActivity : ComponentActivity() {
         header.addView(settings,LinearLayout.LayoutParams(44.dp,44.dp))
         RetroUi.add(page,header,0,19)
 
-        val formatRow=LinearLayout(this).apply {
-            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
-            background=RetroUi.background(RetroUi.cream,13.dp.toFloat())
-            setPadding(13.dp,5.dp,7.dp,5.dp)
+        val formatRow=RetroUi.panel(this,RetroUi.cream)
+        RetroUi.add(formatRow,RetroUi.text(this,"FORMAT AKTIF",10f,true,RetroUi.brown),0,8)
+        val formatCols=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL}
+        val values=when(selectedFormatIndex) {
+            0 -> listOf("A5","20","A–D")
+            1 -> listOf("A5","30","A–E")
+            else -> listOf("A4","50","A–E")
         }
-        val formatInfo=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
-        RetroUi.add(formatInfo,RetroUi.text(this,"FORMAT AKTIF",10f,true,RetroUi.brown))
-        formatRow.addView(formatInfo,LinearLayout.LayoutParams(-2,-2).apply {rightMargin=8.dp})
+        listOf("Kertas","Soal","Pilihan").forEachIndexed {i,label ->
+            val column=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
+            RetroUi.add(column,RetroUi.text(this,label,10f,false,RetroUi.brown))
+            RetroUi.add(column,RetroUi.text(this,values[i],16f,true,RetroUi.green),2)
+            formatCols.addView(column,LinearLayout.LayoutParams(0,-2,1f))
+        }
+        RetroUi.add(formatRow,formatCols)
         mode=Spinner(this).apply {
             adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,
                 listOf("A5 · 20 Soal · A–D","A5 · 30 Soal · A–E","A4 · 50 Soal · A–E"))
-            setSelection(selectedFormatIndex);minimumHeight=43.dp
+            setSelection(selectedFormatIndex)
+            visibility=View.GONE
         }
-        formatRow.addView(mode,LinearLayout.LayoutParams(0,-2,1f))
-        mode.onItemSelectedListener=object:android.widget.AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent:android.widget.AdapterView<*>?) {}
-            override fun onItemSelected(parent:android.widget.AdapterView<*>?,view:View?,position:Int,id:Long) {
-                selectedFormatIndex=position
-            }
-        }
+        RetroUi.add(formatRow,mode)
+        RetroUi.add(formatRow,RetroUi.action(this,"Atur format & buat PDF",RetroUi.greenLight,RetroUi.green){showGenerator()},10)
         RetroUi.add(page,formatRow,0,14)
 
         val hero=RetroUi.panel(this,RetroUi.greenLight).apply {setPadding(15.dp,14.dp,15.dp,14.dp)}
@@ -194,6 +200,12 @@ class MainActivity : ComponentActivity() {
         RetroUi.add(keyCard,RetroUi.action(this,"Kelola Kunci Jawaban",RetroUi.greenLight,RetroUi.green){selectedLayoutSafely();showKeyEditor()})
         RetroUi.add(page,keyCard,0,14)
 
+        val pdfCard=RetroUi.panel(this)
+        RetroUi.add(pdfCard,RetroUi.text(this,"Buat & Unduh LJK",16f,true,RetroUi.green),0,5)
+        RetroUi.add(pdfCard,RetroUi.text(this,"Judul ujian bebas · PDF minimalis · Cetak ukuran asli",12f,false,RetroUi.brown),0,10)
+        RetroUi.add(pdfCard,RetroUi.action(this,"Buat LJK PDF",RetroUi.greenLight,RetroUi.green){ selectedLayoutSafely();showGenerator() })
+        RetroUi.add(page,pdfCard,0,14)
+
         val guide=RetroUi.panel(this,RetroUi.cream).apply {setPadding(14.dp,13.dp,14.dp,13.dp)}
         val guideHeader=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
         guideHeader.addView(RetroUi.text(this,"Panduan posisi LJK",14f,true,RetroUi.green),LinearLayout.LayoutParams(0,-2,1f))
@@ -211,6 +223,73 @@ class MainActivity : ComponentActivity() {
         footer.addView(RetroUi.text(this,"Offline · Tanpa penyimpanan hasil",11f,false,RetroUi.brown))
         RetroUi.add(page,footer)
         if(lastReport!=null) RetroUi.add(page,RetroUi.action(this,"Lihat hasil terakhir",RetroUi.cream,RetroUi.green){showResult()},10)
+    }
+
+    private fun showGenerator() {
+        val page=newPage()
+        RetroUi.add(page,RetroUi.action(this,"‹  Kembali",RetroUi.cream,RetroUi.green){showHome()},0,12)
+        RetroUi.add(page,RetroUi.text(this,"Buat LJK",23f,true,RetroUi.green),0,5)
+        RetroUi.add(page,RetroUi.text(this,"Format bersih dan nyaman diarsir. Semua koordinat mengikuti scanner.",12f,false,RetroUi.brown),0,15)
+        val panel=RetroUi.panel(this)
+        val papers=listOf("A5","A4")
+        val counts=listOf("20","30","50")
+        val opts=listOf("A–D","A–E")
+        fun field(label:String,items:List<String>):Spinner {
+            RetroUi.add(panel,RetroUi.text(this,label,12f,true,RetroUi.green),8,3)
+            val spinner=Spinner(this)
+            spinner.adapter=ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,items)
+            RetroUi.add(panel,spinner,0,7)
+            return spinner
+        }
+        val paper=field("Ukuran kertas",papers)
+        val count=field("Jumlah soal",counts)
+        val options=field("Pilihan jawaban",opts)
+        val presets=listOf(Triple("A5","20","A–D"),Triple("A5","30","A–E"),Triple("A4","50","A–E"))
+        var syncing=false
+        fun syncPreset(index:Int) {
+            syncing=true
+            val (a,b,c)=presets[index]
+            paper.setSelection(papers.indexOf(a));count.setSelection(counts.indexOf(b));options.setSelection(opts.indexOf(c))
+            syncing=false
+        }
+        syncPreset(selectedFormatIndex)
+        val notice=RetroUi.text(this,"Pilihan aman: A5/20/A–D, A5/30/A–E, atau A4/50/A–E.",11f,false,RetroUi.brown)
+        RetroUi.add(panel,notice,0,9)
+        val onSelect=object:android.widget.AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent:android.widget.AdapterView<*>?) {}
+            override fun onItemSelected(parent:android.widget.AdapterView<*>?,view:View?,position:Int,id:Long) {
+                if(syncing)return
+                val combination=Triple(papers[paper.selectedItemPosition],counts[count.selectedItemPosition],opts[options.selectedItemPosition])
+                val idx=presets.indexOf(combination)
+                notice.text=if(idx>=0) "Siap dicetak dan dipindai dengan format yang sama." else "Kombinasi belum didukung scanner. Pilih salah satu format teruji."
+                notice.setTextColor(if(idx>=0) RetroUi.green else RetroUi.orange)
+            }
+        }
+        paper.onItemSelectedListener=onSelect;count.onItemSelectedListener=onSelect;options.onItemSelectedListener=onSelect
+        RetroUi.add(panel,RetroUi.text(this,"Judul ujian",12f,true,RetroUi.green),8,4)
+        val title=EditText(this).apply {setSingleLine(true);hint="Contoh: Penilaian Harian Matematika";setText(pdfTitle);textSize=15f}
+        RetroUi.add(panel,title)
+        RetroUi.add(panel,RetroUi.text(this,"Nama sekolah (opsional)",12f,true,RetroUi.green),10,4)
+        val school=EditText(this).apply {setSingleLine(true);hint="Nama sekolah";setText(pdfSchool);textSize=15f}
+        RetroUi.add(panel,school)
+        RetroUi.add(panel,RetroUi.action(this,"Unduh PDF LJK",RetroUi.orange){
+            val combination=Triple(papers[paper.selectedItemPosition],counts[count.selectedItemPosition],opts[options.selectedItemPosition])
+            val idx=presets.indexOf(combination)
+            if(idx<0){toast("Format ini belum memiliki koordinat OMR yang teruji.");return@action}
+            pdfTitle=title.text.toString().trim().ifBlank { "LEMBAR JAWABAN" }
+            pdfSchool=school.text.toString().trim()
+            selectedFormatIndex=idx
+            if(::mode.isInitialized) mode.setSelection(idx)
+            currentLayout=listOf("scan-A5-20.json","scan-A5-30.json","scan-A4-50.json")[idx]
+            val intent=Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type="application/pdf"
+                putExtra(Intent.EXTRA_TITLE,"LJK-${papers[paper.selectedItemPosition]}-${counts[count.selectedItemPosition]}.pdf")
+            }
+            startActivityForResult(intent,pdfRequest)
+        },14,7)
+        RetroUi.add(panel,RetroUi.text(this,"Cetak pada skala 100% / Actual size. Jangan gunakan Fit to Page. Empat kotak sudut wajib terlihat.",11f,false,RetroUi.brown))
+        RetroUi.add(page,panel)
     }
 
     private fun showOptions() {
@@ -377,6 +456,20 @@ class MainActivity : ComponentActivity() {
     @Deprecated("Activity result API")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == pdfRequest) {
+            if(resultCode == RESULT_OK && data?.data != null) {
+                try {
+                    val uri=data.data!!
+                    val layout=JSONObject(assets.open(currentLayout).bufferedReader().use { it.readText() })
+                    contentResolver.openOutputStream(uri)?.use { output ->
+                        LjkGenerator(layout).write(output,pdfTitle,pdfSchool)
+                    } ?: throw IllegalStateException("Tidak dapat membuka lokasi penyimpanan")
+                    toast("PDF LJK berhasil disimpan. Cetak ukuran 100%.")
+                    showHome()
+                } catch(e:Exception) {toast("Gagal menyimpan PDF: ${e.message}")}
+            }
+            return
+        }
         if(resultCode != RESULT_OK || isReading) return
         val uri = when(requestCode) {
             cameraRequest -> photoUri
