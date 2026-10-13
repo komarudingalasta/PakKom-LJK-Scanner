@@ -32,8 +32,8 @@ object RetroUi {
 
     fun panel(context: Context, color: Int = cream): LinearLayout = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
-        background = background(color, context.dp(22).toFloat(), line, context.dp(1))
-        setPadding(context.dp(18), context.dp(18), context.dp(18), context.dp(18))
+        background = background(color, context.dp(14).toFloat(), line, context.dp(1))
+        setPadding(context.dp(15), context.dp(14), context.dp(15), context.dp(14))
     }
 
     fun text(context: Context, value: String, size: Float = 16f, bold: Boolean = false, color: Int = ink): TextView =
@@ -45,11 +45,11 @@ object RetroUi {
         }
 
     fun action(context: Context, label: String, color: Int = green, foreground: Int = cream, click: () -> Unit): TextView =
-        text(context, label, 17f, true, foreground).apply {
+        text(context, label, 15f, true, foreground).apply {
             gravity = Gravity.CENTER
-            minHeight = context.dp(56)
-            setPadding(context.dp(10), context.dp(12), context.dp(10), context.dp(12))
-            background = background(color, context.dp(16).toFloat(), if (color == cream) line else color, context.dp(1))
+            minHeight = context.dp(48)
+            setPadding(context.dp(10), context.dp(10), context.dp(10), context.dp(10))
+            background = background(color, context.dp(14).toFloat(), if (color == cream) line else color, context.dp(1))
             isClickable = true
             isFocusable = true
             setOnClickListener { click() }
