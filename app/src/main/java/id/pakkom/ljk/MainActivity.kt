@@ -29,13 +29,14 @@ class MainActivity : ComponentActivity() {
         setContentView(ScrollView(this).apply { addView(root) })
         fun label(t:String,size:Float=15f)=TextView(this).apply {text=t;textSize=size;setTextColor(Color.rgb(22,55,63));setPadding(0,8.dp,0,8.dp);root.addView(this)}
         label("PakKom LJK Scanner",24f)
-        label("v1.6.0 · Live Camera · Auto Capture (eksperimental)",14f)
+        label("v1.6.2 · Fast Live Scanner · Auto Capture (eksperimental)",14f)
         label("Pilih format lembar")
         mode=Spinner(this).apply { adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,listOf("A5 · 20 soal · A–D","A5 · 30 soal · A–E","A4 · 50 soal · A–E"));root.addView(this) }
         label("Foto seluruh kertas dengan keempat kotak hitam terlihat. Uji posisi lurus, miring sekitar 10°, dan 20°. Gunakan cahaya rata.",13f)
         root.addView(Button(this).apply {text="BUKA LIVE SCANNER";setOnClickListener { startActivityForResult(Intent(this@MainActivity, LiveScannerActivity::class.java).putExtra("layout",selectedLayout()),liveRequest) }})
         root.addView(Button(this).apply {text="FOTO LJK (KAMERA BAWAAN)";setOnClickListener { openCamera() }})
         root.addView(Button(this).apply {text="PILIH FOTO DARI GALERI";setOnClickListener {startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {addCategory(Intent.CATEGORY_OPENABLE);type="image/*"},galleryRequest)} })
+        root.addView(Button(this).apply {text="SCAN BERIKUTNYA (LIVE)";setOnClickListener { preview.setImageDrawable(null);status.text="Siap memindai lembar berikutnya.";startActivityForResult(Intent(this@MainActivity, LiveScannerActivity::class.java).putExtra("layout",selectedLayout()),liveRequest) }})
         root.addView(Button(this).apply {text="SCAN ULANG / BERSIHKAN HASIL";setOnClickListener {preview.setImageDrawable(null);status.text="Siap memindai LJK berikutnya. Pilih kamera atau galeri."} })
         preview=ImageView(this).apply { adjustViewBounds=true;scaleType=ImageView.ScaleType.FIT_CENTER;root.addView(this) }
         status=TextView(this).apply {text="Hasil pemindaian akan tampil di sini. Hasil yang meragukan harus diverifikasi guru.";textSize=15f;setTextColor(Color.DKGRAY);setPadding(0,18.dp,0,18.dp);root.addView(this)}
