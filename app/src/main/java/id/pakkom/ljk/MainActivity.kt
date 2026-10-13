@@ -37,9 +37,26 @@ class MainActivity : ComponentActivity() {
     private var lastWarnings: List<String> = emptyList()
     private var isReading = false
     private var scanningKey = false
-    private fun formatSize() = when(selectedFormatIndex) { 0 -> 20; 1 -> 30; else -> 50 }
-    private fun formatChoices() = if(selectedFormatIndex == 0) listOf("A","B","C","D") else listOf("A","B","C","D","E")
-    private fun keyStorageName() = "key_${selectedFormatIndex}"
+    private data class FormatSpec(val paper:String,val count:Int,val options:String) {
+        val asset get() = "scan-$paper-$count-$options.json"
+        val label get() = "$paper · $count Soal · ${if(options=="ABCD") "A–D" else "A–E"}"
+    }
+    private val specs = listOf(
+        FormatSpec("A5",10,"ABCD"), FormatSpec("A5",10,"ABCDE"),
+        FormatSpec("A5",20,"ABCD"), FormatSpec("A5",20,"ABCDE"),
+        FormatSpec("A5",30,"ABCD"), FormatSpec("A5",30,"ABCDE"),
+        FormatSpec("A4",30,"ABCD"), FormatSpec("A4",30,"ABCDE"),
+        FormatSpec("A4",40,"ABCD"), FormatSpec("A4",40,"ABCDE"),
+        FormatSpec("A4",50,"ABCD"), FormatSpec("A4",50,"ABCDE")
+    )
+    private fun formatSize() = specs[selectedFormatIndex].count
+    private fun formatChoices() = specs[selectedFormatIndex].options.map { it.toString() }
+    private fun keyStorageName(): String = when(selectedFormatIndex) {
+        2 -> "key_0"  // Legacy A5 20 A-D
+        5 -> "key_1"  // Legacy A5 30 A-E
+        11 -> "key_2" // Legacy A4 50 A-E
+        else -> "key_v181_${selectedFormatIndex}"
+    }
     private fun loadKey(): MutableList<String> {
         val size = formatSize()
         val saved = getSharedPreferences("pakkom_keys", MODE_PRIVATE).getString(keyStorageName(), null)
@@ -56,7 +73,7 @@ class MainActivity : ComponentActivity() {
         val page = newPage()
         RetroUi.add(page, RetroUi.action(this,"‹  Kembali",RetroUi.cream,RetroUi.green){showHome()},0,12)
         RetroUi.add(page,RetroUi.text(this,"Kunci Jawaban",23f,true,RetroUi.green),0,5)
-        val formats = listOf("A5 · 20 Soal · A–D","A5 · 30 Soal · A–E","A4 · 50 Soal · A–E")
+        val formats = specs.map { it.label }
         RetroUi.add(page,RetroUi.text(this,formats[selectedFormatIndex],12f,false,RetroUi.brown),0,12)
         val key = loadKey()
         val status=RetroUi.text(this,"Terisi ${key.count { it.isNotEmpty() }} dari ${key.size} soal",13f,true,RetroUi.green)
@@ -142,11 +159,8 @@ class MainActivity : ComponentActivity() {
         val formatRow=RetroUi.panel(this,RetroUi.cream)
         RetroUi.add(formatRow,RetroUi.text(this,"FORMAT AKTIF",10f,true,RetroUi.brown),0,8)
         val formatCols=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL}
-        val values=when(selectedFormatIndex) {
-            0 -> listOf("A5","20","A–D")
-            1 -> listOf("A5","30","A–E")
-            else -> listOf("A4","50","A–E")
-        }
+        val active=specs[selectedFormatIndex]
+        val values=listOf(active.paper,active.count.toString(),if(active.options=="ABCD") "A–D" else "A–E")
         listOf("Kertas","Soal","Pilihan").forEachIndexed {i,label ->
             val column=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
             RetroUi.add(column,RetroUi.text(this,label,10f,false,RetroUi.brown))
@@ -156,7 +170,7 @@ class MainActivity : ComponentActivity() {
         RetroUi.add(formatRow,formatCols)
         mode=Spinner(this).apply {
             adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,
-                listOf("A5 · 20 Soal · A–D","A5 · 30 Soal · A–E","A4 · 50 Soal · A–E"))
+                specs.map { it.label })
             setSelection(selectedFormatIndex)
             visibility=View.GONE
         }
@@ -227,68 +241,68 @@ class MainActivity : ComponentActivity() {
 
     private fun showGenerator() {
         val page=newPage()
-        RetroUi.add(page,RetroUi.action(this,"‹  Kembali",RetroUi.cream,RetroUi.green){showHome()},0,12)
-        RetroUi.add(page,RetroUi.text(this,"Buat LJK",23f,true,RetroUi.green),0,5)
-        RetroUi.add(page,RetroUi.text(this,"Format bersih dan nyaman diarsir. Semua koordinat mengikuti scanner.",12f,false,RetroUi.brown),0,15)
+        RetroUi.add(page,RetroUi.action(this,"‹  Kembali",RetroUi.cream,RetroUi.green){showHome()},0,8)
+        RetroUi.add(page,RetroUi.text(this,"Buat LJK",23f,true,RetroUi.green),0,4)
+        RetroUi.add(page,RetroUi.text(this,"Pilih ukuran, jumlah soal, dan jawaban. PDF sesuai format scanner.",12f,false,RetroUi.brown),0,12)
         val panel=RetroUi.panel(this)
         val papers=listOf("A5","A4")
-        val counts=listOf("20","30","50")
         val opts=listOf("A–D","A–E")
         fun field(label:String,items:List<String>):Spinner {
-            RetroUi.add(panel,RetroUi.text(this,label,12f,true,RetroUi.green),8,3)
-            val spinner=Spinner(this)
-            spinner.adapter=ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,items)
-            RetroUi.add(panel,spinner,0,7)
-            return spinner
-        }
-        val paper=field("Ukuran kertas",papers)
-        val count=field("Jumlah soal",counts)
-        val options=field("Pilihan jawaban",opts)
-        val presets=listOf(Triple("A5","20","A–D"),Triple("A5","30","A–E"),Triple("A4","50","A–E"))
-        var syncing=false
-        fun syncPreset(index:Int) {
-            syncing=true
-            val (a,b,c)=presets[index]
-            paper.setSelection(papers.indexOf(a));count.setSelection(counts.indexOf(b));options.setSelection(opts.indexOf(c))
-            syncing=false
-        }
-        syncPreset(selectedFormatIndex)
-        val notice=RetroUi.text(this,"Pilihan aman: A5/20/A–D, A5/30/A–E, atau A4/50/A–E.",11f,false,RetroUi.brown)
-        RetroUi.add(panel,notice,0,9)
-        val onSelect=object:android.widget.AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent:android.widget.AdapterView<*>?) {}
-            override fun onItemSelected(parent:android.widget.AdapterView<*>?,view:View?,position:Int,id:Long) {
-                if(syncing)return
-                val combination=Triple(papers[paper.selectedItemPosition],counts[count.selectedItemPosition],opts[options.selectedItemPosition])
-                val idx=presets.indexOf(combination)
-                notice.text=if(idx>=0) "Siap dicetak dan dipindai dengan format yang sama." else "Kombinasi belum didukung scanner. Pilih salah satu format teruji."
-                notice.setTextColor(if(idx>=0) RetroUi.green else RetroUi.orange)
+            RetroUi.add(panel,RetroUi.text(this,label,12f,true,RetroUi.green),5,1)
+            return Spinner(this).also { spinner ->
+                spinner.adapter=ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,items)
+                RetroUi.add(panel,spinner,0,2)
             }
         }
-        paper.onItemSelectedListener=onSelect;count.onItemSelectedListener=onSelect;options.onItemSelectedListener=onSelect
-        RetroUi.add(panel,RetroUi.text(this,"Judul ujian",12f,true,RetroUi.green),8,4)
+        val paper=field("Ukuran kertas",papers)
+        val count=field("Jumlah soal",listOf("10","20","30"))
+        val options=field("Pilihan jawaban",opts)
+        var updating=false
+        fun setCounts(p:String,preferred:Int) {
+            val allowed=if(p=="A5") listOf(10,20,30) else listOf(30,40,50)
+            val chosen=if(preferred in allowed) preferred else if(p=="A5") 20 else 40
+            count.adapter=ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,allowed.map { it.toString() })
+            count.setSelection(allowed.indexOf(chosen))
+        }
+        val initial=specs[selectedFormatIndex]
+        updating=true
+        paper.setSelection(papers.indexOf(initial.paper))
+        setCounts(initial.paper,initial.count)
+        options.setSelection(if(initial.options=="ABCD") 0 else 1)
+        updating=false
+        paper.onItemSelectedListener=object:android.widget.AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent:android.widget.AdapterView<*>?) {}
+            override fun onItemSelected(parent:android.widget.AdapterView<*>?,view:View?,position:Int,id:Long) {
+                if(updating)return
+                val old=count.selectedItem?.toString()?.toIntOrNull() ?: 20
+                updating=true;setCounts(papers[position],old);updating=false
+            }
+        }
+        RetroUi.add(panel,RetroUi.text(this,"Judul ujian",12f,true,RetroUi.green),9,1)
         val title=EditText(this).apply {setSingleLine(true);hint="Contoh: Penilaian Harian Matematika";setText(pdfTitle);textSize=15f}
         RetroUi.add(panel,title)
-        RetroUi.add(panel,RetroUi.text(this,"Nama sekolah (opsional)",12f,true,RetroUi.green),10,4)
+        RetroUi.add(panel,RetroUi.text(this,"Nama sekolah (opsional)",12f,true,RetroUi.green),7,1)
         val school=EditText(this).apply {setSingleLine(true);hint="Nama sekolah";setText(pdfSchool);textSize=15f}
         RetroUi.add(panel,school)
         RetroUi.add(panel,RetroUi.action(this,"Unduh PDF LJK",RetroUi.orange){
-            val combination=Triple(papers[paper.selectedItemPosition],counts[count.selectedItemPosition],opts[options.selectedItemPosition])
-            val idx=presets.indexOf(combination)
-            if(idx<0){toast("Format ini belum memiliki koordinat OMR yang teruji.");return@action}
+            val p=paper.selectedItem.toString()
+            val n=count.selectedItem.toString().toInt()
+            val o=if(options.selectedItemPosition==0) "ABCD" else "ABCDE"
+            val idx=specs.indexOfFirst { it.paper==p && it.count==n && it.options==o }
+            if(idx<0){toast("Format belum tersedia.");return@action}
             pdfTitle=title.text.toString().trim().ifBlank { "LEMBAR JAWABAN" }
             pdfSchool=school.text.toString().trim()
             selectedFormatIndex=idx
             if(::mode.isInitialized) mode.setSelection(idx)
-            currentLayout=listOf("scan-A5-20.json","scan-A5-30.json","scan-A4-50.json")[idx]
+            currentLayout=specs[idx].asset
             val intent=Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type="application/pdf"
-                putExtra(Intent.EXTRA_TITLE,"LJK-${papers[paper.selectedItemPosition]}-${counts[count.selectedItemPosition]}.pdf")
+                putExtra(Intent.EXTRA_TITLE,"LJK-$p-$n-${if(o=="ABCD") "AD" else "AE"}.pdf")
             }
             startActivityForResult(intent,pdfRequest)
-        },14,7)
-        RetroUi.add(panel,RetroUi.text(this,"Cetak pada skala 100% / Actual size. Jangan gunakan Fit to Page. Empat kotak sudut wajib terlihat.",11f,false,RetroUi.brown))
+        },10,5)
+        RetroUi.add(panel,RetroUi.text(this,"Cetak skala 100% (Actual Size). Pastikan empat kotak sudut terlihat.",11f,false,RetroUi.brown))
         RetroUi.add(page,panel)
     }
 
@@ -411,20 +425,16 @@ class MainActivity : ComponentActivity() {
             11f, false, RetroUi.brown), 12)
     }
 
-    private fun selectedLayout(): String = when(mode.selectedItemPosition) {
-        0 -> "scan-A5-20.json"
-        1 -> "scan-A5-30.json"
-        else -> "scan-A4-50.json"
-    }
-    private var currentLayout = "scan-A5-20.json"
-    private var selectedFormatIndex = 0
+    private fun selectedLayout(): String = specs[selectedFormatIndex].asset
+    private var currentLayout = "scan-A5-20-ABCD.json"
+    private var selectedFormatIndex = 2
     private fun openLive() {
         currentLayout = selectedLayoutSafely()
         startActivityForResult(Intent(this, LiveScannerActivity::class.java).putExtra("layout", currentLayout), liveRequest)
     }
     private fun selectedLayoutSafely(): String {
         if(::mode.isInitialized) {
-            selectedFormatIndex = mode.selectedItemPosition.coerceIn(0, 2)
+            selectedFormatIndex = mode.selectedItemPosition.coerceIn(0, specs.lastIndex)
             currentLayout = selectedLayout()
         }
         return currentLayout
