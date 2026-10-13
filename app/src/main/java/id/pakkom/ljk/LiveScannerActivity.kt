@@ -49,7 +49,7 @@ class LiveScannerActivity : ComponentActivity() {
         val asset = intent.getStringExtra("layout") ?: "scan-A5-20.json"
         layout = assets.open(asset).bufferedReader().use { JSONObject(it.readText()) }
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(Color.BLACK) }
-        val header = TextView(this).apply { text="PakKom Live Scanner · ${layout.optString("format_id")}"; textSize=17f;setTextColor(Color.WHITE);setPadding(18,22,18,18) }
+        val header = TextView(this).apply { text="PakKom Live Scanner · ${this@LiveScannerActivity.layout.optString("format_id")}"; textSize=17f;setTextColor(Color.WHITE);setPadding(18,22,18,18) }
         root.addView(header)
         val frame = FrameLayout(this)
         view = PreviewView(this).apply { scaleType = PreviewView.ScaleType.FIT_CENTER }
@@ -69,7 +69,7 @@ class LiveScannerActivity : ComponentActivity() {
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED) startCamera()
         else requestPermissions(arrayOf(Manifest.permission.CAMERA),requestPermission)
     }
-    override fun onRequestPermissionsResult(requestCode:Int,permissions:Array<out String>,grantResults:IntArray){
+    override fun onRequestPermissionsResult(requestCode:Int,permissions:Array<String>,grantResults:IntArray){
         super.onRequestPermissionsResult(requestCode,permissions,grantResults)
         if(requestCode==requestPermission){
             if(grantResults.firstOrNull()==PackageManager.PERMISSION_GRANTED)startCamera()
