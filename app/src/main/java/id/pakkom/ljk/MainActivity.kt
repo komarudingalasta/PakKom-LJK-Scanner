@@ -17,7 +17,7 @@ import androidx.core.content.FileProvider
 import org.json.JSONObject
 import java.io.File
 
-/** v1.6.8: balanced homepage; OMR algorithm and JSON assets unchanged. */
+/** v1.6.9: balanced homepage; OMR algorithm and JSON assets unchanged. */
 class MainActivity : ComponentActivity() {
     private lateinit var mode: Spinner
     private lateinit var root: LinearLayout
@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
         return page
     }
 
-    /** v1.6.8: balanced, responsive homepage with consistent native vector icons. */
+    /** v1.6.9: balanced, responsive homepage with consistent native vector icons. */
     private fun showHome() {
         val page=newPage()
         page.setPadding(20.dp,20.dp,20.dp,20.dp)
@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
         header.addView(brandBox,LinearLayout.LayoutParams(44.dp,44.dp).apply {rightMargin=10.dp})
         val identity=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
         RetroUi.add(identity,RetroUi.text(this,"PakKom LJK",21f,true,RetroUi.green))
-        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.6.8",10f,true,RetroUi.brown),2)
+        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.6.9",10f,true,RetroUi.brown),2)
         header.addView(identity,LinearLayout.LayoutParams(0,-2,1f))
         val settings=LinearLayout(this).apply {
             gravity=Gravity.CENTER;isClickable=true;isFocusable=true
@@ -150,58 +150,92 @@ class MainActivity : ComponentActivity() {
             }.show()
     }
 
+    /** v1.6.9: compact results, explicit uncertainty, and optional photo inspection. */
     private fun showResult() {
         val page = newPage()
-        val back = RetroUi.text(this, "‹  Beranda", 16f, true, RetroUi.green).apply {
-            setPadding(0, 4.dp, 0, 12.dp)
+        val back = RetroUi.text(this, "‹  Beranda", 15f, true, RetroUi.green).apply {
+            setPadding(0, 4.dp, 0, 10.dp)
             setOnClickListener { showHome() }
         }
         RetroUi.add(page, back)
-        RetroUi.add(page, RetroUi.text(this, "Hasil Pemindaian", 21f, true, RetroUi.green), 0, 14)
+        RetroUi.add(page, RetroUi.text(this, "Hasil Pemindaian", 21f, true, RetroUi.green), 0, 12)
+
+        val unanswered = lastAnswers.count { it == "-" || it == "–" }
+        val unclear = lastAnswers.count { it == "?" }
+        val marked = lastAnswers.size - unanswered - unclear
+        val codeUnclear = lastCode.contains('?') || lastCode.isBlank()
+        val needsReview = codeUnclear || unclear > 0 || lastWarnings.isNotEmpty()
 
         val info = RetroUi.panel(this)
-        RetroUi.add(info, RetroUi.text(this, "KODE PESERTA", 12f, true, RetroUi.brown))
-        RetroUi.add(info, RetroUi.text(this, lastCode, 31f, true, RetroUi.green), 2)
-        RetroUi.add(info, RetroUi.text(this, lastFormat, 13f, true, RetroUi.brown), 0, 8)
-        RetroUi.add(info, RetroUi.text(this, "✓  LJK terdeteksi · Perspektif tervalidasi", 13f, true, RetroUi.green))
-        RetroUi.add(page, info, 0, 14)
+        RetroUi.add(info, RetroUi.text(this, "KODE PESERTA", 11f, true, RetroUi.brown))
+        RetroUi.add(info, RetroUi.text(this, lastCode.ifBlank { "???" }, 31f, true, RetroUi.green), 2)
+        RetroUi.add(info, RetroUi.text(this, lastFormat, 12f, false, RetroUi.brown), 0, 9)
+        RetroUi.add(info, RetroUi.text(this,
+            if (needsReview) "PERLU PEMERIKSAAN MANUAL" else "HASIL TERBACA · TETAP PERIKSA LJK ASLI",
+            12f, true, if (needsReview) RetroUi.orange else RetroUi.green))
+        RetroUi.add(page, info, 0, 12)
+
+        val summary = RetroUi.panel(this, RetroUi.greenLight)
+        RetroUi.add(summary, RetroUi.text(this, "RINGKASAN ${lastAnswers.size} SOAL", 12f, true, RetroUi.green), 0, 7)
+        RetroUi.add(summary, RetroUi.text(this,
+            "Terisi: $marked     Kosong: $unanswered     Tidak jelas: $unclear",
+            13f, true, RetroUi.green))
+        RetroUi.add(page, summary, 0, 12)
+
+        if (needsReview) {
+            val warning = RetroUi.panel(this)
+            RetroUi.add(warning, RetroUi.text(this, "PERIKSA MANUAL", 13f, true, RetroUi.orange), 0, 7)
+            val details = buildList {
+                if (codeUnclear) add("Kode peserta belum terbaca jelas")
+                if (unclear > 0) add("Nomor tidak jelas: " + lastAnswers.indices.filter { lastAnswers[it] == "?" }.joinToString(", ") { (it + 1).toString() })
+                addAll(lastWarnings)
+            }
+            RetroUi.add(warning, RetroUi.text(this, details.joinToString("\n"), 12f, false, RetroUi.brown))
+            RetroUi.add(page, warning, 0, 12)
+        }
 
         val answersPanel = RetroUi.panel(this)
-        RetroUi.add(answersPanel, RetroUi.text(this, "JAWABAN TERDETEKSI", 14f, true, RetroUi.green), 0, 12)
+        RetroUi.add(answersPanel, RetroUi.text(this, "JAWABAN TERDETEKSI", 13f, true, RetroUi.green), 0, 10)
         val mid = (lastAnswers.size + 1) / 2
         val columns = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         for (range in listOf(0 until mid, mid until lastAnswers.size)) {
             val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
             range.forEach { i ->
-                RetroUi.add(column, RetroUi.text(this, "%02d     %s".format(i + 1, lastAnswers[i]), 15f, true).apply {
-                    setPadding(9.dp, 8.dp, 0, 8.dp)
+                val answer = lastAnswers[i]
+                val row = RetroUi.text(this, "%02d     %s".format(i + 1, answer), 14f, true,
+                    if (answer == "?") RetroUi.orange else RetroUi.ink).apply {
+                    setPadding(9.dp, 7.dp, 0, 7.dp)
                     if (i % 2 == 0) setBackgroundColor(RetroUi.greenLight)
-                }, 1)
+                }
+                RetroUi.add(column, row, 1)
             }
             columns.addView(column, LinearLayout.LayoutParams(0, -2, 1f))
         }
         RetroUi.add(answersPanel, columns)
-        RetroUi.add(page, answersPanel, 0, 14)
+        RetroUi.add(page, answersPanel, 0, 12)
+
+        RetroUi.add(page, RetroUi.action(this, "SCAN BERIKUTNYA", RetroUi.orange) { openLive() }, 0, 8)
+        RetroUi.add(page, RetroUi.action(this, "Pilih Foto Lain", RetroUi.cream, RetroUi.green) { openGallery() }, 0, 12)
 
         lastImage?.let { image ->
-            val photo = RetroUi.panel(this)
-            RetroUi.add(photo, RetroUi.text(this, "FOTO LJK & OVERLAY", 13f, true, RetroUi.brown), 0, 8)
+            val toggle = RetroUi.action(this, "Lihat Foto LJK & Overlay", RetroUi.cream, RetroUi.green) { }
+            val photo = RetroUi.panel(this).apply { visibility = View.GONE }
             RetroUi.add(photo, ImageView(this).apply {
                 adjustViewBounds = true
                 scaleType = ImageView.ScaleType.FIT_CENTER
                 setImageBitmap(image)
             })
-            RetroUi.add(page, photo, 0, 14)
+            toggle.setOnClickListener {
+                val opening = photo.visibility != View.VISIBLE
+                photo.visibility = if (opening) View.VISIBLE else View.GONE
+                toggle.text = if (opening) "Sembunyikan Foto LJK" else "Lihat Foto LJK & Overlay"
+            }
+            RetroUi.add(page, toggle, 0, 8)
+            RetroUi.add(page, photo, 0, 8)
         }
-        if (lastWarnings.isNotEmpty()) {
-            val warning = RetroUi.panel(this)
-            RetroUi.add(warning, RetroUi.text(this, "PERIKSA MANUAL", 14f, true, RetroUi.orange))
-            RetroUi.add(warning, RetroUi.text(this, lastWarnings.joinToString("\n"), 13f), 6)
-            RetroUi.add(page, warning, 0, 14)
-        }
-        RetroUi.add(page, RetroUi.action(this, "↻   SCAN BERIKUTNYA", RetroUi.orange) { openLive() }, 2, 10)
-        RetroUi.add(page, RetroUi.action(this, "Pilih Foto Lain", RetroUi.cream, RetroUi.green) { openGallery() })
-        RetroUi.add(page, RetroUi.text(this, "– kosong   ·   ? tidak jelas / ganda\nPeriksa hasil dengan lembar asli. Tidak ada penyimpanan data.", 12f, false, RetroUi.brown), 16)
+        RetroUi.add(page, RetroUi.text(this,
+            "– = kosong  ·  ? = tidak jelas / ganda\nHasil perlu dicocokkan dengan LJK asli. Tidak ada penyimpanan hasil.",
+            11f, false, RetroUi.brown), 12)
     }
 
     private fun selectedLayout(): String = when(mode.selectedItemPosition) {
