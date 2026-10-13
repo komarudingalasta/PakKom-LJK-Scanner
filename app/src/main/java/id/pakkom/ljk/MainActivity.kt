@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
             setBackgroundColor(RetroUi.paper)
             setPadding(18.dp, 20.dp, 18.dp, 22.dp)
         }
-        val scroll = ScrollView(this).apply { fillViewport = true; addView(page) }
+        val scroll = ScrollView(this).apply { isFillViewport = true; addView(page) }
         setContentView(scroll)
         root = page
         return page
