@@ -38,9 +38,11 @@ class LiveScannerActivity : ComponentActivity() {
     private val busy = AtomicBoolean(false)
     private var auto = false
     private var lastCheck = 0L
+    private var previousCorners: List<Pair<Double,Double>>? = null
     private var lastSignature = ""
     private var stableFrames = 0
     private val requiredStableFrames = 3
+    private val cornerMotionThreshold = 0.012 // fraction of frame diagonal
     private var lastAutoCaptureAt = 0L
     private val captureCooldownMs = 3500L
     private var taking = false
@@ -63,7 +65,7 @@ class LiveScannerActivity : ComponentActivity() {
         message = TextView(this).apply {text="Arahkan kamera ke seluruh LJK; empat kotak hitam harus terlihat.";setTextColor(RetroUi.ink);setBackgroundColor(RetroUi.cream);textSize=14f;setPadding(18,12,18,12)}
         root.addView(message)
         val buttons=LinearLayout(this).apply { setBackgroundColor(RetroUi.cream);setPadding(8,8,8,8) }
-        val autoButton=Button(this).apply { text="AUTO OFF";setOnClickListener { auto=!auto; text=if(auto)"AUTO ON" else "AUTO OFF";stableFrames=0;lastSignature="";message.text=if(auto)"AUTO aktif: tahan kertas hingga hasil stabil." else "AUTO mati: tekan FOTO untuk memindai." } }
+        val autoButton=Button(this).apply { text="AUTO OFF";setOnClickListener { auto=!auto; text=if(auto)"AUTO ON" else "AUTO OFF";stableFrames=0;lastSignature="";previousCorners=null;message.text=if(auto)"AUTO aktif: tahan kertas hingga hasil stabil." else "AUTO mati: tekan FOTO untuk memindai." } }
         autoButton.setTextColor(RetroUi.green)
         buttons.addView(autoButton,LinearLayout.LayoutParams(0,-2,1f))
         buttons.addView(Button(this).apply {text="● FOTO";setTextColor(RetroUi.green);setOnClickListener { takePhoto() }},LinearLayout.LayoutParams(0,-2,1f))
@@ -116,24 +118,51 @@ class LiveScannerActivity : ComponentActivity() {
                 // four fiducials pass the existing OMR perspective validation.
                 val maxSide=1000
                 if(maxOf(bitmap.width,bitmap.height)>maxSide){val f=maxSide.toFloat()/maxOf(bitmap.width,bitmap.height);bitmap=Bitmap.createScaledBitmap(bitmap,(bitmap.width*f).toInt(),(bitmap.height*f).toInt(),true)}
-                val result=OmrReader(layout).read(bitmap)
-                val valid=result.qualityNotes.isEmpty() && result.code.none { it=='?' } && result.answers.none { it=="?" } && result.answers.any { it!="-" }
-                val signature=result.code+"|"+result.answers.joinToString("")
-                if(valid){stableFrames=if(signature==lastSignature)stableFrames+1 else 1;lastSignature=signature}
-                else {stableFrames=0;lastSignature=""}
-                runOnUiThread {if(!taking)message.text=if(valid)"LJK terdeteksi · stabil $stableFrames/$requiredStableFrames" else "LJK terlihat, tetapi hasil/kualitas belum cukup jelas. Atur cahaya atau tekan FOTO."}
-                if(valid && stableFrames>=requiredStableFrames && now-lastAutoCaptureAt>=captureCooldownMs){
+                // Fiducial geometry must be stable, not merely identical OMR output.
+                val corners=OmrReader(layout).detectCorners(bitmap)
+                val diagonal=kotlin.math.hypot(bitmap.width.toDouble(),bitmap.height.toDouble())
+                val old=previousCorners
+                val movement=if(corners!=null && old!=null && corners.size==old.size)
+                    corners.indices.maxOf { i -> kotlin.math.hypot(corners[i].first-old[i].first,corners[i].second-old[i].second) }/diagonal
+                    else Double.POSITIVE_INFINITY
+                previousCorners=corners
+                val sharpness=estimateSharpness(bitmap)
+                val sharpEnough=sharpness>=7.0
+                val stable=corners!=null && movement<cornerMotionThreshold && sharpEnough
+                stableFrames=if(stable)stableFrames+1 else 0
+                val status=when {
+                    corners==null -> "Empat penanda belum terdeteksi. Pastikan kertas utuh dalam bingkai."
+                    !sharpEnough -> "Gambar kurang tajam. Tahan kamera dan atur fokus."
+                    movement==Double.POSITIVE_INFINITY -> "4 sudut ditemukan · tahan kamera tetap diam."
+                    movement>=cornerMotionThreshold -> "4 sudut ditemukan · kamera masih bergerak."
+                    else -> "4 sudut terdeteksi · stabil $stableFrames/$requiredStableFrames"
+                }
+                runOnUiThread {if(!taking)message.text=status}
+                if(stable && stableFrames>=requiredStableFrames && now-lastAutoCaptureAt>=captureCooldownMs){
                     lastAutoCaptureAt=now
                     stableFrames=0
                     runOnUiThread { if(auto && !taking)takePhoto() }
                 }
-            }catch(e:Exception){stableFrames=0;lastSignature="";runOnUiThread {if(!taking)message.text="Cari keempat penanda sudut, lalu tahan kamera stabil..."}}
+            }catch(e:Exception){stableFrames=0;previousCorners=null;lastSignature="";runOnUiThread {if(!taking)message.text="Cari keempat penanda sudut, lalu tahan kamera stabil..."}}
             finally {busy.set(false)}
         }finally{frame.close()}
     }
+    /** Average adjacent luminance contrast as a lightweight blur warning (not a guarantee). */
+    private fun estimateSharpness(bitmap: Bitmap): Double {
+        val step=maxOf(2,minOf(bitmap.width,bitmap.height)/140)
+        var sum=0.0;var count=0
+        for(y in step until bitmap.height-step step step) for(x in step until bitmap.width-step step step){
+            fun lum(px:Int):Int=(Color.red(px)*30+Color.green(px)*59+Color.blue(px)*11)/100
+            val center=lum(bitmap.getPixel(x,y))
+            sum+=kotlin.math.abs(center-lum(bitmap.getPixel(x+step,y)))
+            sum+=kotlin.math.abs(center-lum(bitmap.getPixel(x,y+step)))
+            count+=2
+        }
+        return if(count==0)0.0 else sum/count
+    }
     private fun takePhoto(){
         if(taking || !::capture.isInitialized)return
-        taking=true;auto=false;stableFrames=0;lastSignature="";message.text="Mengambil foto resolusi penuh..."
+        taking=true;auto=false;stableFrames=0;previousCorners=null;lastSignature="";message.text="Mengambil foto resolusi penuh..."
         val file=File(cacheDir,"live-ljk-${System.currentTimeMillis()}.jpg")
         capture.takePicture(ImageCapture.OutputFileOptions.Builder(file).build(),ContextCompat.getMainExecutor(this),object:ImageCapture.OnImageSavedCallback{
             override fun onImageSaved(output:ImageCapture.OutputFileResults){
