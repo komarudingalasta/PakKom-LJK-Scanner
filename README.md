@@ -1,16 +1,19 @@
-# PakKom LJK Scanner v1.6.4 — Retro Modern (Opsi 3)
+# PakKom LJK Scanner v1.6.5 — Compact Retro Modern
 
-Implementasi native Android Kotlin untuk **Opsi 3: Retro Modern** (hijau toska, oranye hangat, putih gading). Dibuat dari source v1.6.3 dengan desain beranda dan halaman hasil yang lebih ringkas.
+Perbaikan UI berdasarkan screenshot v1.6.4: judul, kartu format, area scan, dan tombol dibuat lebih ringkas dan proporsional. Warna toska, oranye, dan gading dipertahankan.
 
 ## Perubahan
-- Beranda: header sederhana, satu pemilih format, satu tombol utama **Mulai Scan**, satu tombol **Pilih dari Galeri**. Kamera bawaan dan bantuan tersedia lewat ikon pengaturan.
-- Hasil: kode peserta dan status di bagian atas, tabel jawaban dua kolom, foto/overlay, lalu tombol **Scan Berikutnya**.
-- Live Scanner: tetap memakai CameraX dan kontrol AUTO/FOTO sebelumnya, warna menyesuaikan tema.
-- Memperbaiki kesalahan kompilasi sebelumnya: `isFillViewport = true`.
-- **OmrReader.kt, ScanGuideView.kt, JSON koordinat, dan logika capture tidak diubah.**
+- Header diperkecil dan disederhanakan.
+- Kartu format lebih padat; area scan tidak lagi mendominasi layar.
+- Tombol utama **Mulai Scan** dan tombol sekunder **Pilih dari Galeri**.
+- Status ringkas di bawah kartu.
+- Halaman hasil menggunakan tipografi lebih seimbang.
+- Versi aplikasi 1.6.5.
 
-## Memasang
-Ekstrak ZIP ke root repository GitHub (bukan sebagai satu folder tambahan), commit, lalu periksa Actions > Artifacts. Sebelum unggah, simpan versi terakhir yang berfungsi sebagai cadangan.
+## Tidak diubah
+`OmrReader.kt`, `LiveScannerActivity.kt`, aset JSON koordinat, algoritma deteksi, dan alur pemindaian.
 
-## Status validasi
-Pemeriksaan statis file dan ZIP dilakukan. **Build Android/instalasi pada perangkat belum diuji**; periksa GitHub Actions. Ini adalah implementasi tema Opsi 3 yang mendekati arah desain yang dipilih, bukan jaminan identik piksel demi piksel dengan gambar konsep.
+## Instalasi
+Ekstrak seluruh isi ZIP ke akar repository GitHub `PakKom-LJK-Scanner` dan commit. Tunggu GitHub Actions, lalu unduh APK dari Artifacts bila build berhasil.
+
+**Catatan:** Ini implementasi native Android yang mengikuti komposisi opsi 3 secara lebih ketat; bukan salinan piksel-per-piksel dari gambar konsep. Belum diuji pada emulator/perangkat dan build APK belum dijalankan di lingkungan ini.
