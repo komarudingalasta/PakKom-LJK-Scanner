@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         val page = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(RetroUi.paper)
-            setPadding(18.dp, 20.dp, 18.dp, 22.dp)
+            setPadding(20.dp, 18.dp, 20.dp, 24.dp)
         }
         val scroll = ScrollView(this).apply { isFillViewport = true; addView(page) }
         setContentView(scroll)
@@ -50,49 +50,56 @@ class MainActivity : ComponentActivity() {
         return page
     }
 
+    /** Compact Retro Modern: the scan action is primary, everything else secondary. */
     private fun showHome() {
         val page = newPage()
-        val header = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-        val title = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        RetroUi.add(title, RetroUi.text(this, "PakKom LJK", 29f, true, RetroUi.green))
-        RetroUi.add(title, RetroUi.text(this, "SCANNER  /  RETRO MODERN", 11f, true, RetroUi.brown), 3)
-        header.addView(title, LinearLayout.LayoutParams(0, -2, 1f))
-        header.addView(RetroUi.text(this, "⚙", 27f, true, RetroUi.green).apply {
-            setPadding(12.dp, 8.dp, 8.dp, 8.dp)
-            contentDescription = "Pengaturan dan bantuan"
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        val identity = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        RetroUi.add(identity, RetroUi.text(this, "PakKom LJK", 23f, true, RetroUi.green))
+        RetroUi.add(identity, RetroUi.text(this, "Scanner  •  v1.6.5", 12f, false, RetroUi.brown), 2)
+        header.addView(identity, LinearLayout.LayoutParams(0, -2, 1f))
+        val settings = RetroUi.text(this, "⚙", 23f, true, RetroUi.green).apply {
+            gravity = Gravity.CENTER
+            minWidth = 46.dp
+            minHeight = 46.dp
+            contentDescription = "Opsi dan bantuan"
             setOnClickListener { showOptions() }
-        })
-        RetroUi.add(page, header, 4, 25)
+        }
+        header.addView(settings)
+        RetroUi.add(page, header, 0, 23)
 
         val formatPanel = RetroUi.panel(this)
-        RetroUi.add(formatPanel, RetroUi.text(this, "FORMAT LEMBAR", 12f, true, RetroUi.brown), 0, 8)
+        RetroUi.add(formatPanel, RetroUi.text(this, "FORMAT LJK", 11f, true, RetroUi.brown), 0, 3)
         mode = Spinner(this).apply {
             adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item,
-                listOf("A5  ·  20 soal  ·  A–D", "A5  ·  30 soal  ·  A–E", "A4  ·  50 soal  ·  A–E"))
+                listOf("A5 · 20 soal · A–D", "A5 · 30 soal · A–E", "A4 · 50 soal · A–E"))
             setSelection(selectedFormatIndex)
-            minimumHeight = 48.dp
+            minimumHeight = 42.dp
         }
         RetroUi.add(formatPanel, mode)
         RetroUi.add(page, formatPanel, 0, 16)
 
         val hero = RetroUi.panel(this, RetroUi.greenLight)
-        val symbol = RetroUi.text(this, "▣", 56f, true, RetroUi.green).apply { gravity = Gravity.CENTER }
-        RetroUi.add(hero, symbol, 8)
-        RetroUi.add(hero, RetroUi.text(this, "Siap memindai?", 23f, true, RetroUi.green).apply {
+        val icon = RetroUi.text(this, "▣", 40f, true, RetroUi.green).apply { gravity = Gravity.CENTER }
+        RetroUi.add(hero, icon, 0, 2)
+        RetroUi.add(hero, RetroUi.text(this, "Siap memindai", 20f, true, RetroUi.green).apply {
             gravity = Gravity.CENTER
-        }, 2)
-        RetroUi.add(hero, RetroUi.text(this, "Arahkan kamera hingga keempat penanda sudut terlihat.", 13f, false, RetroUi.brown).apply {
+        })
+        RetroUi.add(hero, RetroUi.text(this, "Pastikan empat kotak sudut LJK terlihat.", 12f, false, RetroUi.brown).apply {
             gravity = Gravity.CENTER
-        }, 8, 18)
-        RetroUi.add(hero, RetroUi.action(this, "◉   MULAI SCAN", RetroUi.orange) { openLive() })
-        RetroUi.add(hero, RetroUi.action(this, "▧   Pilih dari Galeri", RetroUi.cream, RetroUi.green) { openGallery() }, 10)
+        }, 5, 16)
+        RetroUi.add(hero, RetroUi.action(this, "Mulai Scan   →", RetroUi.orange) { openLive() })
+        RetroUi.add(hero, RetroUi.action(this, "Pilih dari Galeri", RetroUi.cream, RetroUi.green) { openGallery() }, 9)
         RetroUi.add(page, hero)
 
-        RetroUi.add(page, RetroUi.text(this, "OFFLINE   ·   CEPAT   ·   TANPA PENYIMPANAN", 11f, true, RetroUi.brown).apply {
+        RetroUi.add(page, RetroUi.text(this, "Offline  •  Tanpa penyimpanan hasil", 11f, false, RetroUi.brown).apply {
             gravity = Gravity.CENTER
-        }, 24)
+        }, 17)
         if (lastReport != null) {
-            RetroUi.add(page, RetroUi.action(this, "Lihat Hasil Terakhir  →", RetroUi.cream, RetroUi.green) { showResult() }, 16)
+            RetroUi.add(page, RetroUi.action(this, "Lihat hasil terakhir", RetroUi.cream, RetroUi.green) { showResult() }, 13)
         }
     }
 
@@ -114,11 +121,11 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { showHome() }
         }
         RetroUi.add(page, back)
-        RetroUi.add(page, RetroUi.text(this, "Hasil Pemindaian", 25f, true, RetroUi.green), 0, 14)
+        RetroUi.add(page, RetroUi.text(this, "Hasil Pemindaian", 21f, true, RetroUi.green), 0, 14)
 
         val info = RetroUi.panel(this)
         RetroUi.add(info, RetroUi.text(this, "KODE PESERTA", 12f, true, RetroUi.brown))
-        RetroUi.add(info, RetroUi.text(this, lastCode, 38f, true, RetroUi.green), 2)
+        RetroUi.add(info, RetroUi.text(this, lastCode, 31f, true, RetroUi.green), 2)
         RetroUi.add(info, RetroUi.text(this, lastFormat, 13f, true, RetroUi.brown), 0, 8)
         RetroUi.add(info, RetroUi.text(this, "✓  LJK terdeteksi · Perspektif tervalidasi", 13f, true, RetroUi.green))
         RetroUi.add(page, info, 0, 14)
