@@ -1,25 +1,23 @@
-# PakKom LJK Scanner v1.6.2 — Fast Live Scanner
+# PakKom LJK Scanner v1.6.3 — Retro Edition
 
-Berbasis source v1.6.1 yang berhasil dibuild dan diuji pengguna.
+Android Kotlin / CameraX, offline. Source lengkap untuk repository GitHub.
 
-## Perubahan
-- Tombol **SCAN BERIKUTNYA (LIVE)** pada halaman hasil untuk langsung kembali ke kamera.
-- AUTO memerlukan **3 pembacaan berturut-turut yang identik** sebelum mengambil foto (sebelumnya 2).
-- Status stabilitas `n/3` ditampilkan saat AUTO aktif.
-- Pencegahan pemicu pengambilan foto berulang dalam jeda 3,5 detik, dan penguncian saat foto diproses.
-- AUTO tidak mengambil foto jika kode peserta tidak jelas, ada jawaban `?`, ada peringatan kualitas, atau tidak ada satu pun jawaban yang terisi. Tombol FOTO tetap tersedia.
-- Mesin OMR, format koordinat, dan deteksi perspektif tidak diubah.
+## Yang berubah
+- Beranda retro krem–hijau botol–cokelat, pilihan format, satu tombol scan utama, dan galeri.
+- Kamera bawaan dipindahkan ke menu **Kamera bawaan • Bantuan**.
+- Hasil scan menjadi layar terpisah: foto overlay, kode peserta, jawaban dalam dua kolom, dan tombol **Scan Berikutnya**.
+- Live Camera diberi header dan panel kontrol bernuansa retro.
+- Tidak menambah database, penyimpanan hasil, maupun penilaian.
+- **OmrReader.kt, ScanGuideView.kt, seluruh JSON koordinat, dan logika auto capture tidak diubah.**
 
-## Catatan
-AUTO masih eksperimental. Pemeriksaan dilakukan sekitar setiap 1,7 detik; 3 pembacaan membutuhkan beberapa detik, bukan pemindaian instan. Status stabil hanya mengacu pada hasil OMR konsisten, belum mengukur pergerakan fisik kamera. Pencegahan duplikasi hanya selama satu sesi kamera, bukan pemeriksaan identitas lembar lintas sesi.
+## Cara build
+Ekstrak isi ZIP ke root repository `PakKom-LJK-Scanner`, commit, lalu jalankan GitHub Actions `Build Android APK` dan unduh artifact APK.
 
-## Instalasi
-Ekstrak ZIP ke akar repository GitHub, commit, tunggu workflow Build Android APK, instal APK hasil artifact.
+## Pengujian wajib
+1. Pastikan GitHub Actions berhasil build.
+2. Pilih A5 20 dan pindai dari Live Scanner; cek kode peserta dan jawaban.
+3. Uji galeri, kamera bawaan dari menu bantuan, dan Scan Berikutnya.
+4. Uji pemilihan A5 30 / A4 50 (format harus tetap benar setelah pindah halaman).
+5. Cocokkan seluruh overlay dengan kertas asli.
 
-## Uji
-1. Live Scanner → FOTO, pastikan hasil akurat.
-2. Aktifkan AUTO dan tahan kertas; amati indikator stabil 1/3, 2/3, 3/3.
-3. Gunakan SCAN BERIKUTNYA (LIVE) untuk lembar selanjutnya.
-4. Pastikan galeri, kamera bawaan, dan format LJK tetap berfungsi.
-
-**Build APK dan pengujian di perangkat belum dilakukan pada paket ini.**
+**Catatan:** source diperiksa secara statis; build APK dan pengujian perangkat belum dilakukan di sini. Desain retro ini adalah implementasi UI native yang disederhanakan dari konsep visual, bukan salinan piksel demi piksel.
