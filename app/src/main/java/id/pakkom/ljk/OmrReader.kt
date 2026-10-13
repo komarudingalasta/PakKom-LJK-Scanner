@@ -201,6 +201,9 @@ class OmrReader(private val layout: JSONObject) {
      * projected area, perspective, size consistency and corner positions.
      * The returned order is TL, BL, TR, BR, as used by the layout JSON.
      */
+    /** Check four registration markers without decoding answers. */
+    fun detectCorners(image: Bitmap): List<Pair<Double,Double>>? = findMarks(image)
+
     private fun findMarks(image: Bitmap): List<Pair<Double,Double>>? {
         val w=image.width;val h=image.height
         val step=max(1,max(w,h)/1100)
