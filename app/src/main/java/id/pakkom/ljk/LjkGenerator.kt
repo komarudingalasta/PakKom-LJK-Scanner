@@ -61,8 +61,8 @@ class LjkGenerator(private val layout: JSONObject) {
             }
             val left=if(compact) 15f else 24f
             val right=pw-left
-            val boxTop=if(compact) 34f else 38f
-            val boxBottom=if(compact) 77f else 91f
+            val boxTop=if(compact) 41f else 45f
+            val boxBottom=if(compact) 85f else 99f
             c.drawRoundRect(left*mm,boxTop*mm,right*mm,boxBottom*mm,1.6f*mm,1.6f*mm,border)
             c.label("IDENTITAS PESERTA",left+3f,boxTop+4.2f,if(compact)6.5f else 9f,true)
             val sep1=if(compact) 60f else 86f
@@ -72,10 +72,10 @@ class LjkGenerator(private val layout: JSONObject) {
             c.label("TINGKAT KELAS",if(compact) 21f else 32f,boxTop+9f,if(compact)5.5f else 8f,true)
             c.label("ROMBEL",if(compact) 66f else 94f,boxTop+9f,if(compact)5.5f else 8f,true)
             c.label("NOMOR ABSEN",if(compact) 99f else 140f,boxTop+9f,if(compact)5.5f else 8f,true)
-            c.label("Puluhan",if(compact) 20f else 31f,if(compact)45f else 49f,if(compact)4.4f else 7f)
-            c.label("Satuan",if(compact) 20f else 31f,if(compact)58f else 68f,if(compact)4.4f else 7f)
-            c.label("Puluhan",if(compact) 98f else 140f,if(compact)45f else 49f,if(compact)4.4f else 7f)
-            c.label("Satuan",if(compact) 98f else 140f,if(compact)58f else 68f,if(compact)4.4f else 7f)
+            c.label("Puluhan",if(compact) 20f else 31f,if(compact)50f else 55f,if(compact)4.4f else 7f)
+            c.label("Satuan",if(compact) 20f else 31f,if(compact)63f else 74f,if(compact)4.4f else 7f)
+            c.label("Puluhan",if(compact) 98f else 140f,if(compact)50f else 55f,if(compact)4.4f else 7f)
+            c.label("Satuan",if(compact) 98f else 140f,if(compact)63f else 74f,if(compact)4.4f else 7f)
             val fields=listOf("grade_tens","grade_units","room","attendance_tens","attendance_units")
             for(key in fields) {
                 val field=identity.getJSONObject(key)
@@ -88,7 +88,7 @@ class LjkGenerator(private val layout: JSONObject) {
             }
             val answers=layout.getJSONObject("answers")
             val choices=layout.getString("options")
-            val bubbleRadius=if(compact) 2.5f else 3.0f
+            val bubbleRadius=if(compact) (if(n==30) 2.35f else 2.5f) else (if(n==50) 2.65f else 3.0f)
             for(q in 1..n) {
                 val row=answers.getJSONObject(q.toString())
                 val firstOption=row.getJSONArray(choices[0].toString())
