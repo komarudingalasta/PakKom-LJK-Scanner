@@ -150,7 +150,7 @@ class MainActivity : ComponentActivity() {
         val settings=LinearLayout(this).apply {
             gravity=Gravity.CENTER;isClickable=true;isFocusable=true
             contentDescription="Pengaturan dan bantuan"
-            addView(ScannerIconView(this@MainActivity,ScannerIconView.Kind.SETTINGS,RetroUi.green),LinearLayout.LayoutParams(25.dp,25.dp))
+            addView(android.widget.ImageView(this@MainActivity).apply { setImageResource(R.drawable.ic_settings_gear); contentDescription="Pengaturan" },LinearLayout.LayoutParams(24.dp,24.dp))
             setOnClickListener {showOptions()}
         }
         header.addView(settings,LinearLayout.LayoutParams(44.dp,44.dp))
