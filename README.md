@@ -8,3 +8,11 @@ Pembaruan generator PDF dari v1.8.2:
 - Jarak setiap lima soal yang sudah ada di template dipertahankan.
 
 **Perlu diuji:** kompilasi GitHub Actions, cetak 100%, dan pembacaan identitas serta jawaban di kertas nyata. Jangan gunakan untuk penilaian resmi sebelum lulus pengujian.
+
+
+## v1.8.4 Portrait Identity
+- Identitas dalam kotak tipis, tingkat dan absen: puluhan di atas, satuan di bawah.
+- Rombel A-L: 3 baris x 4 kolom.
+- Semua 12 template scan-* diubah bersamaan dengan generator PDF.
+- Template cetak lama tidak kompatibel dengan posisi identitas baru.
+- Build APK dan uji hasil cetak 100% serta pemindaian fisik wajib dilakukan sebelum penggunaan resmi.
