@@ -64,18 +64,18 @@ class LjkGenerator(private val layout: JSONObject) {
             val boxTop=if(compact) 41f else 45f
             val boxBottom=if(compact) 85f else 99f
             c.drawRoundRect(left*mm,boxTop*mm,right*mm,boxBottom*mm,1.6f*mm,1.6f*mm,border)
-            c.label("IDENTITAS PESERTA",left+3f,boxTop+4.2f,if(compact)6.5f else 9f,true)
+            c.label("IDENTITAS PESERTA",left+3f,boxTop+3.4f,if(compact)5.7f else 8f,true)
             val sep1=if(compact) 60f else 86f
             val sep2=if(compact) 94f else 134f
             c.drawLine(sep1*mm,(boxTop+7f)*mm,sep1*mm,(boxBottom-2f)*mm,border)
             c.drawLine(sep2*mm,(boxTop+7f)*mm,sep2*mm,(boxBottom-2f)*mm,border)
-            c.label("TINGKAT KELAS",if(compact) 21f else 32f,boxTop+9f,if(compact)5.5f else 8f,true)
-            c.label("ROMBEL",if(compact) 66f else 94f,boxTop+9f,if(compact)5.5f else 8f,true)
-            c.label("NOMOR ABSEN",if(compact) 99f else 140f,boxTop+9f,if(compact)5.5f else 8f,true)
-            c.label("Puluhan",if(compact) 20f else 31f,if(compact)50f else 55f,if(compact)4.4f else 7f)
-            c.label("Satuan",if(compact) 20f else 31f,if(compact)63f else 74f,if(compact)4.4f else 7f)
-            c.label("Puluhan",if(compact) 98f else 140f,if(compact)50f else 55f,if(compact)4.4f else 7f)
-            c.label("Satuan",if(compact) 98f else 140f,if(compact)63f else 74f,if(compact)4.4f else 7f)
+            c.label("TINGKAT KELAS",if(compact) 21f else 32f,boxTop+(if(compact)7.4f else 7f),if(compact)5.2f else 7.3f,true)
+            c.label("ROMBEL",if(compact) 66f else 94f,boxTop+(if(compact)7.4f else 7f),if(compact)5.2f else 7.3f,true)
+            c.label("NOMOR ABSEN",if(compact) 99f else 140f,boxTop+(if(compact)7.4f else 7f),if(compact)5.2f else 7.3f,true)
+            c.label("Puluhan",if(compact) 20f else 31f,if(compact)50.1f else 55.2f,if(compact)4.0f else 6.3f)
+            c.label("Satuan",if(compact) 20f else 31f,if(compact)63f else 73.4f,if(compact)4.0f else 6.3f)
+            c.label("Puluhan",if(compact) 98f else 140f,if(compact)50.1f else 55.2f,if(compact)4.0f else 6.3f)
+            c.label("Satuan",if(compact) 98f else 140f,if(compact)63f else 73.4f,if(compact)4.0f else 6.3f)
             val fields=listOf("grade_tens","grade_units","room","attendance_tens","attendance_units")
             for(key in fields) {
                 val field=identity.getJSONObject(key)
