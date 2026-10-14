@@ -145,7 +145,7 @@ class MainActivity : ComponentActivity() {
         header.addView(brandBox,LinearLayout.LayoutParams(44.dp,44.dp).apply {rightMargin=10.dp})
         val identity=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL}
         RetroUi.add(identity,RetroUi.text(this,"PakKom LJK",21f,true,RetroUi.green))
-        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.8.3",10f,true,RetroUi.brown),2)
+        RetroUi.add(identity,RetroUi.text(this,"SMART SCANNER  ·  v1.8.4",10f,true,RetroUi.brown),2)
         header.addView(identity,LinearLayout.LayoutParams(0,-2,1f))
         val settings=LinearLayout(this).apply {
             gravity=Gravity.CENTER;isClickable=true;isFocusable=true
