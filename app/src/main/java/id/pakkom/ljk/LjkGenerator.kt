@@ -51,26 +51,51 @@ class LjkGenerator(private val layout: JSONObject) {
             c.label(t,pw/2f,headY,pt,true,true)
             val s=textSafe(school,52)
             if(s.isNotBlank()) c.label(s,pw/2f,headY-7f,if(compact)7f else 8.5f,false,true)
-            c.label("Nama: ................................................",17f,headY+10f,if(compact)7.5f else 9f)
-            c.label("Kelas: ...................",17f,headY+16f,if(compact)7.5f else 9f)
+            c.label("Nama: ................................................",17f,headY+8f,if(compact)7.5f else 9f)
+            c.label("Kelas: ...................",17f,headY+14f,if(compact)7.5f else 9f)
+            // The identity box is measured from the same OMR coordinates as the scanner.
+            // All decoration remains outside bubble exclusion zones.
             val identity=layout.getJSONObject("identity_bubbles")
-            val groups=listOf(
-                "grade_tens" to "TINGKAT 10",
-                "grade_units" to "TINGKAT 1",
-                "room" to "ROMBEL",
-                "attendance_tens" to "ABSEN 10",
-                "attendance_units" to "ABSEN 1"
-            )
-            c.label("IDENTITAS PESERTA",17f,if(compact)43f else 44f,if(compact)7f else 9f,true)
-            for((key,heading) in groups) {
-                val row=identity.getJSONObject(key)
-                val firstKey=row.keys().asSequence().first()
-                val first=row.getJSONArray(firstKey)
-                val x=first.getDouble(0).toFloat()
-                val y=first.getDouble(1).toFloat()
-                c.label(heading,x,y-4.5f,if(compact)5.4f else 7f,true,true)
-                for (choice in row.keys()) {
-                    val xy=row.getJSONArray(choice)
+            val groups=listOf("grade_tens", "grade_units", "room", "attendance_tens", "attendance_units")
+            val centers=groups.map { key ->
+                val field=identity.getJSONObject(key)
+                val first=field.getJSONArray(field.keys().asSequence().first())
+                first.getDouble(0).toFloat()
+            }
+            val firstField=identity.getJSONObject("grade_tens")
+            val firstY=firstField.getJSONArray("0").getDouble(1).toFloat()
+            var lastY=firstY
+            for(key in groups) {
+                val field=identity.getJSONObject(key)
+                for(choice in field.keys()) {
+                    val y=field.getJSONArray(choice).getDouble(1).toFloat()
+                    if(y>lastY) lastY=y
+                }
+            }
+            val left=if(compact) 16.5f else 21f
+            val right=pw-left
+            val top=firstY-12.0f
+            val bottom=lastY+(if(compact) 4.0f else 5.0f)
+            val border=Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color=Color.rgb(135,135,135)
+                style=Paint.Style.STROKE
+                strokeWidth=0.18f*mm
+            }
+            c.drawRoundRect(left*mm,top*mm,right*mm,bottom*mm,1.7f*mm,1.7f*mm,border)
+            c.label("IDENTITAS PESERTA",left+3f,firstY-8.1f,if(compact) 7.0f else 9.0f,true)
+            // Two level labels avoid collisions with the first row of circles.
+            c.label("TINGKAT",(centers[0]+centers[1])/2f,firstY-4.5f,if(compact) 5.5f else 7f,true,true)
+            c.label("ROMBEL",centers[2],firstY-4.5f,if(compact) 5.5f else 7f,true,true)
+            c.label("ABSEN",(centers[3]+centers[4])/2f,firstY-4.5f,if(compact) 5.5f else 7f,true,true)
+            // Fine vertical separators; do not pass through any printed bubble.
+            for(i in listOf(1,2)) {
+                val x=(centers[if(i==1) 1 else 2]+centers[if(i==1) 2 else 3])/2f
+                c.drawLine(x*mm,(firstY-6f)*mm,x*mm,(bottom-2f)*mm,border)
+            }
+            for(key in groups) {
+                val field=identity.getJSONObject(key)
+                for(choice in field.keys()) {
+                    val xy=field.getJSONArray(choice)
                     val cx=xy.getDouble(0).toFloat(); val cy=xy.getDouble(1).toFloat()
                     c.circle(cx,cy,if(compact)1.65f else 2.1f)
                     c.label(choice,cx,cy+0.65f,if(compact)4.1f else 5f,false,true)
