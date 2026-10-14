@@ -53,52 +53,37 @@ class LjkGenerator(private val layout: JSONObject) {
             if(s.isNotBlank()) c.label(s,pw/2f,headY-7f,if(compact)7f else 8.5f,false,true)
             c.label("Nama: ................................................",17f,headY+8f,if(compact)7.5f else 9f)
             c.label("Kelas: ...................",17f,headY+14f,if(compact)7.5f else 9f)
-            // The identity box is measured from the same OMR coordinates as the scanner.
-            // All decoration remains outside bubble exclusion zones.
+            // Portrait identity: tens ABOVE units, rombel in three rows of four.
+            // Coordinates are loaded from the SAME scan JSON consumed by OmrReader.
             val identity=layout.getJSONObject("identity_bubbles")
-            val groups=listOf("grade_tens", "grade_units", "room", "attendance_tens", "attendance_units")
-            val centers=groups.map { key ->
-                val field=identity.getJSONObject(key)
-                val first=field.getJSONArray(field.keys().asSequence().first())
-                first.getDouble(0).toFloat()
-            }
-            val firstField=identity.getJSONObject("grade_tens")
-            val firstY=firstField.getJSONArray("0").getDouble(1).toFloat()
-            var lastY=firstY
-            for(key in groups) {
-                val field=identity.getJSONObject(key)
-                for(choice in field.keys()) {
-                    val y=field.getJSONArray(choice).getDouble(1).toFloat()
-                    if(y>lastY) lastY=y
-                }
-            }
-            val left=if(compact) 16.5f else 21f
-            val right=pw-left
-            val top=firstY-12.0f
-            val bottom=lastY+(if(compact) 4.0f else 5.0f)
             val border=Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color=Color.rgb(135,135,135)
-                style=Paint.Style.STROKE
-                strokeWidth=0.18f*mm
+                color=Color.rgb(130,130,130); style=Paint.Style.STROKE; strokeWidth=0.18f*mm
             }
-            c.drawRoundRect(left*mm,top*mm,right*mm,bottom*mm,1.7f*mm,1.7f*mm,border)
-            c.label("IDENTITAS PESERTA",left+3f,firstY-8.1f,if(compact) 7.0f else 9.0f,true)
-            // Two level labels avoid collisions with the first row of circles.
-            c.label("TINGKAT",(centers[0]+centers[1])/2f,firstY-4.5f,if(compact) 5.5f else 7f,true,true)
-            c.label("ROMBEL",centers[2],firstY-4.5f,if(compact) 5.5f else 7f,true,true)
-            c.label("ABSEN",(centers[3]+centers[4])/2f,firstY-4.5f,if(compact) 5.5f else 7f,true,true)
-            // Fine vertical separators; do not pass through any printed bubble.
-            for(i in listOf(1,2)) {
-                val x=(centers[if(i==1) 1 else 2]+centers[if(i==1) 2 else 3])/2f
-                c.drawLine(x*mm,(firstY-6f)*mm,x*mm,(bottom-2f)*mm,border)
-            }
-            for(key in groups) {
+            val left=if(compact) 15f else 24f
+            val right=pw-left
+            val boxTop=if(compact) 34f else 38f
+            val boxBottom=if(compact) 77f else 91f
+            c.drawRoundRect(left*mm,boxTop*mm,right*mm,boxBottom*mm,1.6f*mm,1.6f*mm,border)
+            c.label("IDENTITAS PESERTA",left+3f,boxTop+4.2f,if(compact)6.5f else 9f,true)
+            val sep1=if(compact) 60f else 86f
+            val sep2=if(compact) 94f else 134f
+            c.drawLine(sep1*mm,(boxTop+7f)*mm,sep1*mm,(boxBottom-2f)*mm,border)
+            c.drawLine(sep2*mm,(boxTop+7f)*mm,sep2*mm,(boxBottom-2f)*mm,border)
+            c.label("TINGKAT KELAS",if(compact) 21f else 32f,boxTop+9f,if(compact)5.5f else 8f,true)
+            c.label("ROMBEL",if(compact) 66f else 94f,boxTop+9f,if(compact)5.5f else 8f,true)
+            c.label("NOMOR ABSEN",if(compact) 99f else 140f,boxTop+9f,if(compact)5.5f else 8f,true)
+            c.label("Puluhan",if(compact) 20f else 31f,if(compact)45f else 49f,if(compact)4.4f else 7f)
+            c.label("Satuan",if(compact) 20f else 31f,if(compact)58f else 68f,if(compact)4.4f else 7f)
+            c.label("Puluhan",if(compact) 98f else 140f,if(compact)45f else 49f,if(compact)4.4f else 7f)
+            c.label("Satuan",if(compact) 98f else 140f,if(compact)58f else 68f,if(compact)4.4f else 7f)
+            val fields=listOf("grade_tens","grade_units","room","attendance_tens","attendance_units")
+            for(key in fields) {
                 val field=identity.getJSONObject(key)
                 for(choice in field.keys()) {
                     val xy=field.getJSONArray(choice)
                     val cx=xy.getDouble(0).toFloat(); val cy=xy.getDouble(1).toFloat()
-                    c.circle(cx,cy,if(compact)1.65f else 2.1f)
-                    c.label(choice,cx,cy+0.65f,if(compact)4.1f else 5f,false,true)
+                    c.circle(cx,cy,if(compact)2.25f else 3f)
+                    c.label(choice,cx,cy+0.75f,if(compact)4.5f else 6f,false,true)
                 }
             }
             val answers=layout.getJSONObject("answers")
